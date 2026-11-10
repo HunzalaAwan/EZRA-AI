@@ -15,3 +15,9 @@ tsconfig.tsbuildinfo
 # master somewhere durable outside the repo rather than in git history.
 background video.mp4
 *.mov
+
+# Output of npm run check:visual. Regenerated on demand; not part of the site.
+screenshots/
+
+# Rewritten by the design hook after every edit.
+.impeccable/hook.cache.json

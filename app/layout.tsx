@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Figtree, Inter, JetBrains_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/toaster";
+import { SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 /**
@@ -40,12 +41,23 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  // Lets link previews resolve to full URLs on whatever domain this runs on.
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "EZRA AI",
     template: "%s · EZRA AI",
   },
   description:
     "Agents that answer your phone and your website chat, book appointments, and hand off when they should.",
+  applicationName: "EZRA AI",
+  openGraph: {
+    type: "website",
+    siteName: "EZRA AI",
+    title: "EZRA AI",
+    description:
+      "Agents that answer your phone and your website chat, book appointments, and hand off when they should.",
+  },
+  twitter: { card: "summary_large_image" },
 };
 
 export const viewport: Viewport = {

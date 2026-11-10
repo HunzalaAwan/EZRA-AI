@@ -6,13 +6,15 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "check:contrast": "node scripts/check-contrast.mjs",
     "check:a11y": "node scripts/a11y.mjs",
     "check:visual": "node scripts/shots.mjs",
     "check:slop": "node scripts/check-slop.mjs",
     "verify": "npm run typecheck && npm run check:contrast && npm run check:slop && npm run build"
+  },
+  "engines": {
+    "node": ">=20.9.0"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",

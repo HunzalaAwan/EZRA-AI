@@ -27,7 +27,7 @@ npm install
 npm run dev
 ```
 
-Open <http://localhost:3000>. It redirects to the dashboard.
+Open <http://localhost:3000> for the marketing site, or <http://localhost:3000/dashboard> for the app.
 
 There is no sign-in step yet, so the app opens straight onto the dashboard as the fixture workspace, a
 three-location dental group in Bend, Oregon.
@@ -41,6 +41,29 @@ npm run start
 
 `start` serves the production build on port 3000. Change it with `next start -p 4000`.
 
+## Deploy it on Vercel
+
+It deploys as a standard Next.js project. No `vercel.json`, no database, no secrets.
+
+1. In Vercel, **Add New > Project** and import the GitHub repository.
+2. Leave the detected settings alone: framework Next.js, build `next build`, install `npm install`.
+   Node comes from `engines` in `package.json` (20.9 or newer).
+3. Deploy. Every push to `main` then deploys to production, and every other branch gets a preview URL.
+
+Optional, once a real domain is attached: set `NEXT_PUBLIC_SITE_URL` (see `.env.example`) under
+**Settings > Environment Variables**. Without it, link previews, `robots.txt` and the sitemap use the
+production deployment's own address.
+
+What the deployment does on its own:
+
+- Marketing pages are indexed. The app routes send `noindex` and are disallowed in `robots.txt`, because
+  they run on fixture data. Preview deployments disallow everything, so a branch URL never shows up in search.
+- Shared links get a generated preview card (`app/opengraph-image.tsx`) and the favicon (`app/icon.svg`).
+- Every response carries `nosniff`, a referrer policy, `SAMEORIGIN` framing, and a permissions policy.
+
+Worth knowing before sharing the URL: the app has no sign-in yet, so anyone with the link can open
+`/dashboard` and click through the fixture workspace. Nothing there is real data, and nothing is saved.
+
 ## What to look at first
 
 | Route | Why |
@@ -51,7 +74,7 @@ npm run start
 | `/agents/ag_frontdesk` | The builder. Three panes with a test panel that never goes away. |
 | `/conversations/cv_9474` | Call review. A long transcript synchronized to playback. |
 
-Dark is the default. Toggle with the icon in the top bar. Press `Ctrl K` anywhere for the command palette.
+Light is the default. Toggle dark with the icon in the top bar. Press `Ctrl K` anywhere for the command palette.
 Turn on reduced motion in your OS to see every animation stand down while the interface keeps working.
 
 ## Checks
