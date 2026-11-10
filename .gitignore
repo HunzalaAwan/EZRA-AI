@@ -1,0 +1,17 @@
+node_modules
+.next
+out
+build
+.DS_Store
+*.pem
+.env*
+!.env.example
+.vercel
+next-env.d.ts
+tsconfig.tsbuildinfo
+
+# The 4K video master. 68MB, and not needed at runtime: scripts/encode-video.mjs
+# turns it into the 2.4MB public/video/signal.mp4 that actually ships. Keep the
+# master somewhere durable outside the repo rather than in git history.
+background video.mp4
+*.mov

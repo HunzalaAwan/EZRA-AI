@@ -1,0 +1,576 @@
+@import "tailwindcss";
+
+/* ============================================================================
+   EZRA AI theme. Generated from DESIGN.md frontmatter tokens.
+
+   The world: an operations console. Charcoal ground, elevated panels, one
+   emerald that means go, one orange that means a line is live.
+
+   Dark is the default. Light is fully designed, not an automatic flip.
+   Do not add a color here that does not carry state.
+   ========================================================================== */
+
+@theme {
+  /* --- Dark is the default, so the root tokens are the dark ones. --- */
+  --color-canvas: #0a0c0b;
+  --color-panel: #0e1110;
+  --color-surface: #121615;
+  --color-raised: #171c1a;
+  --color-sunken: #070908;
+
+  --color-rule: #1e2422;
+  --color-rule-control: #606b66;
+
+  --color-ink: #eef2f0;
+  --color-ink-muted: #96a09b;
+  --color-ink-faint: #7c867f;
+
+  --color-primary: #a78bfa;
+  --color-primary-hover: #c4b5fd;
+  --color-primary-wash: #1e1638;
+  --color-on-primary: #140b2e;
+
+  --color-signal: #ff6b3d;
+  --color-signal-live: #ff6b3d;
+  --color-signal-wash: #2d130a;
+  --color-on-signal: #1a0700;
+
+  --color-success: #00d492;
+  --color-success-wash: #072b21;
+  --color-warning: #ffc53d;
+  --color-warning-wash: #2e2408;
+  --color-danger: #ff4d6a;
+  --color-danger-wash: #2e0f16;
+
+  /* --- Over media. Anything sitting on a photograph or the background video.
+         These never flip with the theme, because a photo and a video are
+         content rather than surfaces, and the scrim over them is dark either
+         way. That is why a photo card looks identical in light and dark. --- */
+  --color-media: #060807;
+  --color-on-media: #f4f7f5;
+  --color-on-media-muted: #c3ccc7;
+  --color-on-media-accent: #c4b5fd;
+
+  /* --- Marketing bands. Three deep grounds with a pale display tint each.
+         Theme-independent like media: a band is a coloured object on the
+         page, not a surface that flips. --- */
+  --color-band-violet: #2a1659;
+  --color-band-violet-ink: #e2d6ff;
+  --color-band-indigo: #1e2a6b;
+  --color-band-indigo-ink: #d3dbff;
+  --color-band-claret: #5a1736;
+  --color-band-claret-ink: #f8d3e1;
+
+  /* --- Chart series. Four slots, validated with the dataviz six-checks
+         script against both surfaces: lightness band, chroma floor, deutan
+         and tritan separation, normal-vision floor, 3:1 contrast. All pass.
+         No orange: signal orange means a live line and a color here carries
+         exactly one meaning. Assign in fixed order, never cycled. --- */
+  --color-series-1: #8b6cf0;
+  --color-series-2: #2aa3b8;
+  --color-series-3: #a88a2a;
+  --color-series-4: #d2589a;
+  --color-chart-grid: #1e2422;
+  --color-chart-axis: #7c867f;
+
+  /* --- Type. Inter carries the whole interface. JetBrains Mono is for
+         measurement only: durations, phone numbers, timestamps, cost. --- */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-figtree), var(--font-inter), ui-sans-serif, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+
+  /* --- Fixed rem scale. No clamp: a heading that shrinks inside a sidebar
+         looks worse, not better.
+
+         16px body, 14px labels. The earlier ladder topped out at 14px for
+         `base` and put most interface text at 11 to 13px, which is a density
+         borrowed from developer tooling and is wrong for this buyer: the
+         person reading this runs a front office, often at arm's length,
+         between appointments, on whatever screen is on the desk.
+
+         Every size in the app and the site resolves through these tokens and
+         nothing hardcodes a px value, so this is the only place the scale
+         lives. --- */
+  --text-2xs: 0.75rem;
+  --text-xs: 0.8125rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.625rem;
+  --text-3xl: 2rem;
+  --text-4xl: 2.375rem;
+
+  /* Rounder than a console. Controls are pills; cards are soft. */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+
+  /* --- Elevation. On a dark ground the lift comes from a hairline plus a
+         soft ambient shadow, never from a heavier drop. --- */
+  --shadow-raised: 0 1px 2px rgb(0 0 0 / 0.4), 0 0 0 1px rgb(255 255 255 / 0.02);
+  --shadow-floating: 0 12px 32px rgb(0 0 0 / 0.55), 0 2px 8px rgb(0 0 0 / 0.4);
+  --shadow-overlay: 0 32px 80px rgb(0 0 0 / 0.7);
+  --shadow-lift: 0 8px 24px rgb(0 0 0 / 0.45);
+  --shadow-glow: 0 0 0 1px rgb(167 139 250 / 0.32), 0 8px 28px rgb(167 139 250 / 0.18);
+
+  /* --- Motion. Springs for anything the user caused, eases for anything the
+         system reports. --- */
+  /* Exponential ease-out only. Real objects decelerate, they do not overshoot,
+     and a bounce curve reads as dated. Anything that should feel physical uses
+     Motion's actual spring physics in components/motion/primitives.tsx, not a
+     CSS curve pretending to be one. */
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --animate-live-pulse: live-pulse 1.6s ease-in-out infinite;
+  --animate-shimmer: shimmer 1.8s linear infinite;
+  --animate-ring: ring-out 1.8s ease-out infinite;
+  /* A tight outlined pulse for anything that sits next to text. The filled
+     ring-out grows to 2.6x and reads as a slab over neighbouring words. */
+  --animate-halo: halo-out 2s ease-out infinite;
+  /* A seam-free strip: the content is doubled and slides by half its width. */
+  --animate-drift: drift 70s linear infinite;
+
+  @keyframes live-pulse {
+    0%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.4;
+      transform: scale(0.82);
+    }
+  }
+  @keyframes shimmer {
+    from {
+      background-position: 200% 0;
+    }
+    to {
+      background-position: -200% 0;
+    }
+  }
+  @keyframes halo-out {
+    0% {
+      opacity: 0.6;
+      transform: scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1.35);
+    }
+  }
+  @keyframes drift {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @keyframes ring-out {
+    0% {
+      opacity: 0.5;
+      transform: scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(2.6);
+    }
+  }
+}
+
+/* ============================================================================
+   Light mode. Selected values, not an inverted flip. Every pair re-verified
+   against the same floors by npm run check:contrast.
+   ========================================================================== */
+
+@custom-variant light (&:where([data-theme="light"], [data-theme="light"] *));
+
+@layer base {
+  :root[data-theme="light"] {
+    /* White ground, near-black ink, and soft grey layers. Colour is kept for
+       meaning and for the big marketing panels, not spread across surfaces. */
+    --color-canvas: #ffffff;
+    --color-panel: #f6f6f5;
+    --color-surface: #ffffff;
+    --color-raised: #ffffff;
+    --color-sunken: #f2f2f1;
+
+    --color-rule: #e7e7e5;
+    --color-rule-control: #8a8a86;
+
+    --color-ink: #0a0a0a;
+    --color-ink-muted: #555553;
+    --color-ink-faint: #6b6b68;
+
+    --color-primary: #6d28d9;
+    --color-primary-hover: #5b21b6;
+    --color-primary-wash: #f1ebff;
+    --color-on-primary: #ffffff;
+
+    --color-signal: #c2400f;
+    --color-signal-live: #e8562a;
+    --color-signal-wash: #fceee8;
+    --color-on-signal: #ffffff;
+
+    --color-success: #007862;
+    --color-success-wash: #e2f4ef;
+    --color-warning: #7a5600;
+    --color-warning-wash: #f9f0da;
+    --color-danger: #c22a44;
+    --color-danger-wash: #fbe9ec;
+
+    --color-series-1: #6a4bd6;
+    --color-series-2: #0083a3;
+    --color-series-3: #8a6a00;
+    --color-series-4: #b03d7c;
+    --color-chart-grid: #e1e7e4;
+    --color-chart-axis: #656f69;
+
+    --shadow-raised:
+      0 1px 2px rgb(10 12 11 / 0.05), 0 1px 1px rgb(10 12 11 / 0.03);
+    --shadow-floating:
+      0 12px 32px rgb(10 12 11 / 0.1), 0 2px 8px rgb(10 12 11 / 0.06);
+    --shadow-overlay: 0 32px 80px rgb(10 12 11 / 0.18);
+    --shadow-lift: 0 8px 24px rgb(10 12 11 / 0.1);
+    --shadow-glow:
+      0 0 0 1px rgb(109 40 217 / 0.25), 0 8px 28px rgb(109 40 217 / 0.12);
+  }
+}
+
+/* ============================================================================
+   Base. Browser surfaces are themed, not left at defaults. That is the
+   cheapest signal that a page was built rather than assembled.
+   ========================================================================== */
+
+@layer base {
+  * {
+    border-color: var(--color-rule);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    color-scheme: dark;
+  }
+
+  :root[data-theme="light"] {
+    color-scheme: light;
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    line-height: 1.55;
+    font-feature-settings: "cv11", "ss01";
+    font-variation-settings: "opsz" 20;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Inter needs negative tracking to look intentional at display sizes. */
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.021em;
+    text-wrap: balance;
+  }
+  h1,
+  .text-4xl,
+  .text-3xl {
+    letter-spacing: -0.032em;
+  }
+
+  table,
+  [data-numeric] {
+    font-variant-numeric: tabular-nums;
+  }
+
+  ::selection {
+    background-color: color-mix(in oklab, var(--color-primary) 30%, transparent);
+    color: var(--color-ink);
+  }
+
+  :root {
+    caret-color: var(--color-primary);
+    accent-color: var(--color-primary);
+    scrollbar-color: var(--color-rule-control) transparent;
+    scrollbar-width: thin;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--color-rule);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-rule-control);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    border-radius: var(--radius-xs);
+  }
+
+  a {
+    text-underline-offset: 3px;
+  }
+
+  .measure {
+    max-inline-size: 70ch;
+  }
+}
+
+@layer utilities {
+  .skeleton {
+    background-image: linear-gradient(
+      90deg,
+      var(--color-sunken) 0%,
+      var(--color-raised) 50%,
+      var(--color-sunken) 100%
+    );
+    background-size: 200% 100%;
+    animation: var(--animate-shimmer);
+  }
+
+  /* A single ambient field behind a hero surface. One per screen, never
+     decoration on every card. */
+  .glow-field {
+    position: relative;
+    isolation: isolate;
+  }
+  .glow-field::before {
+    content: "";
+    position: absolute;
+    inset: -40% 20% 40% -10%;
+    z-index: -1;
+    background: radial-gradient(
+      50% 50% at 50% 50%,
+      color-mix(in oklab, var(--color-primary) 16%, transparent) 0%,
+      transparent 70%
+    );
+    pointer-events: none;
+  }
+
+  /* Hairline top highlight. On a dark ground this is what makes a panel read
+     as a physical surface rather than a flat rectangle. */
+  .edge-light {
+    box-shadow:
+      inset 0 1px 0 0 rgb(255 255 255 / 0.04),
+      var(--shadow-raised);
+  }
+  :root[data-theme="light"] .edge-light {
+    box-shadow:
+      inset 0 1px 0 0 rgb(255 255 255 / 0.8),
+      var(--shadow-raised);
+  }
+}
+
+/* ============================================================================
+   Reduced motion. Everything choreographed stops. The live dot renders solid
+   and keeps its word label, so state is never lost with motion off.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .skeleton {
+    animation: none;
+    background: var(--color-sunken);
+  }
+  .glow-field::before {
+    display: none;
+  }
+}
+
+/* ============================================================================
+   Marketing display scale.
+
+   One ladder, used everywhere on the site, so headings stop being a pile of
+   one-off arbitrary sizes. These are fluid, which is the deliberate exception
+   to the app's fixed scale: a marketing headline should fill the viewport it
+   is given, while a product heading inside a sidebar should not.
+
+   Sora needs aggressive negative tracking at these sizes or it reads loose.
+   ========================================================================== */
+
+@layer components {
+  .display-1 {
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 8.2vw, 7.25rem);
+    font-weight: 600;
+    line-height: 0.92;
+    letter-spacing: -0.058em;
+    text-wrap: balance;
+  }
+  .display-2 {
+    font-family: var(--font-display);
+    font-size: clamp(2.25rem, 5.4vw, 4.5rem);
+    font-weight: 600;
+    line-height: 0.98;
+    letter-spacing: -0.05em;
+    text-wrap: balance;
+  }
+  .display-3 {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 2.6vw, 2.125rem);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.04em;
+    text-wrap: balance;
+  }
+  .display-4 {
+    font-family: var(--font-display);
+    /* Stays a clear step above `lg`, which is now 18px. */
+    font-size: 1.3125rem;
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.03em;
+  }
+  .lede {
+    /* The old floor equalled the new body size, which flattened the step. */
+    font-size: clamp(1.0625rem, 1.4vw, 1.25rem);
+    line-height: 1.62;
+  }
+}
+
+/* ============================================================================
+   Section backgrounds. Composable, and each one works in both themes because
+   every colour in them is mixed from a token rather than hardcoded.
+   ========================================================================== */
+
+@layer utilities {
+  /* A fine grid, faded from the top. Structure without noise. */
+  .bg-grid {
+    background-image:
+      linear-gradient(to right, var(--color-rule) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--color-rule) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: radial-gradient(
+      ellipse 75% 60% at 50% 0%,
+      #000 25%,
+      transparent 100%
+    );
+  }
+
+  /* Three coloured fields. The page's main source of colour. */
+  .bg-mesh {
+    background-image:
+      radial-gradient(
+        58rem 36rem at 12% -6%,
+        color-mix(in oklab, var(--color-primary) var(--mesh-a, 30%), transparent),
+        transparent 64%
+      ),
+      radial-gradient(
+        52rem 34rem at 88% 4%,
+        color-mix(in oklab, var(--color-series-2) var(--mesh-b, 26%), transparent),
+        transparent 66%
+      ),
+      radial-gradient(
+        44rem 30rem at 50% 96%,
+        color-mix(in oklab, var(--color-series-4) var(--mesh-c, 18%), transparent),
+        transparent 70%
+      );
+  }
+
+  /* One warm field, for sections that should feel like the live line. */
+  .bg-ember {
+    background-image: radial-gradient(
+      56rem 34rem at 78% 0%,
+      color-mix(in oklab, var(--color-signal) var(--field, 22%), transparent),
+      transparent 66%
+    );
+  }
+
+  /* The warm counterpart to bg-mesh, for a state where nobody is answering.
+     Mixed from `danger` and the gold series, never from `signal`: signal
+     means a live line and a whole field of it would say the opposite of
+     what this state means. */
+  .bg-alarm {
+    background-image:
+      radial-gradient(
+        62rem 38rem at 82% -8%,
+        color-mix(in oklab, var(--color-danger) var(--alarm-a, 24%), transparent),
+        transparent 64%
+      ),
+      radial-gradient(
+        48rem 32rem at 8% 100%,
+        color-mix(in oklab, var(--color-series-3) var(--alarm-b, 18%), transparent),
+        transparent 66%
+      );
+  }
+
+  /* A single emerald spotlight from above. */
+  .bg-spot {
+    background-image: radial-gradient(
+      60rem 34rem at 50% 0%,
+      color-mix(in oklab, var(--color-primary) var(--field, 22%), transparent),
+      transparent 64%
+    );
+  }
+
+  /* Fine film grain. Keeps large flat gradients from banding. */
+  .bg-grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.5;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+  }
+
+  /* A hairline that fades out at both ends. Softer than a full-width rule. */
+  .rule-fade {
+    background-image: linear-gradient(
+      to right,
+      transparent,
+      var(--color-rule),
+      transparent
+    );
+  }
+}
+
+/* Light mode needs stronger mixes: the same percentage over white reads far
+   weaker than it does over near-black. */
+:root[data-theme="light"] .bg-mesh {
+  --mesh-a: 42%;
+  --mesh-b: 34%;
+  --mesh-c: 26%;
+}
+:root[data-theme="light"] .bg-spot,
+:root[data-theme="light"] .bg-ember {
+  --field: 34%;
+}
+:root[data-theme="light"] .bg-alarm {
+  --alarm-a: 34%;
+  --alarm-b: 28%;
+}
+/* The hairline grid is nearly invisible against white at the dark-mode value. */
+:root[data-theme="light"] .bg-grid {
+  opacity: 0.85;
+}
+:root[data-theme="light"] .bg-grain::after {
+  opacity: 0.28;
+  mix-blend-mode: multiply;
+}
