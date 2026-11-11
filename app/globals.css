@@ -133,6 +133,9 @@
   --animate-halo: halo-out 2s ease-out infinite;
   /* A seam-free strip: the content is doubled and slides by half its width. */
   --animate-drift: drift 70s linear infinite;
+  /* The website widget's attention nudges. Short, then a long rest. */
+  --animate-nudge-bounce: nudge-bounce 2.8s ease-in-out infinite;
+  --animate-nudge-wiggle: nudge-wiggle 3.2s ease-in-out infinite;
 
   @keyframes live-pulse {
     0%,
@@ -161,6 +164,38 @@
     100% {
       opacity: 0;
       transform: scale(1.35);
+    }
+  }
+  @keyframes nudge-bounce {
+    0%,
+    30%,
+    100% {
+      transform: translateY(0);
+    }
+    10% {
+      transform: translateY(-9px);
+    }
+    20% {
+      transform: translateY(-3px);
+    }
+  }
+  @keyframes nudge-wiggle {
+    0%,
+    34%,
+    100% {
+      transform: rotate(0deg);
+    }
+    6% {
+      transform: rotate(-12deg);
+    }
+    14% {
+      transform: rotate(10deg);
+    }
+    22% {
+      transform: rotate(-6deg);
+    }
+    28% {
+      transform: rotate(3deg);
     }
   }
   @keyframes drift {

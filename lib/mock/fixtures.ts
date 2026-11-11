@@ -13,6 +13,7 @@
 
 import type {
   Agent,
+  WidgetSettings,
   ApiKey,
   WebhookDelivery,
   WebhookEndpoint,
@@ -1813,3 +1814,40 @@ export const webhookDeliveries: WebhookDelivery[] = [
   { ...F, id: "dl_7", endpointId: "wh_zapier", event: "booking.created", at: minutesAgo(96), statusCode: 200, durationMs: 229, attempt: 1 },
   { ...F, id: "dl_8", endpointId: "wh_ops", event: "call.completed", at: minutesAgo(131), statusCode: 200, durationMs: 298, attempt: 1 },
 ];
+
+// ---------------------------------------------------------------------------
+// Website widget and voice
+// ---------------------------------------------------------------------------
+
+export const widgetSettings: WidgetSettings = {
+  accent: "#0f766e",
+  mode: "light",
+  corners: "soft",
+  font: "modern",
+  launcher: { icon: "chat", size: "md", position: "right", label: "", motion: "pulse" },
+  greeting: {
+    enabled: true,
+    text: "Hi! Need a cleaning or a new patient visit? I can book you in right here.",
+    delaySeconds: 5,
+    onPhones: false,
+  },
+  assistantName: "Maren",
+  subtitle: "Alder Creek Dental",
+  welcome: "Hi, I'm Maren. I can answer questions about the practice, check your insurance, or book a visit.",
+  quickReplies: ["Book a visit", "Do you take my insurance?", "Opening hours", "I have a toothache"],
+  placeholder: "Ask anything about the practice",
+  showCallButton: true,
+  showBranding: true,
+  voice: {
+    voiceId: "vc_maren",
+    pace: 1,
+    warmth: 0.6,
+    greeting: "Thanks for calling Alder Creek Dental, this is Maren. How can I help you today?",
+    answerAfterRings: 1,
+    hold: "piano",
+    ambience: "none",
+    naturalPauses: true,
+    interrupt: true,
+    spanish: true,
+  },
+};

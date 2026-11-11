@@ -30,6 +30,7 @@ const ROUTES = [
   "/dashboard?view=links",
   "/dashboard?view=patterns",
   "/phone",
+  "/customize",
   "/integrations",
   "/integrations?tab=developers",
   "/billing",

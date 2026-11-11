@@ -224,6 +224,19 @@ signing in again.
 `payments`, `automation`. It includes `booking` for tour, activity and ticket platforms. Known keys are `fareharbor` and
 `ezra-pro`. A connected booking platform is where the agent's checkout links point.
 
+### Website widget and voice
+
+| Method | Path | Returns |
+|---|---|---|
+| GET | `/widget` | `WidgetSettings`, the published version |
+| PUT | `/widget` | `WidgetSettings`, body the whole settings object; publishing is this call |
+| POST | `/widget/logo` | `{ url }`, multipart image under 2 MB (PNG, JPG, SVG, WebP) |
+| GET | `/widget/install` | `{ domain, lastSeenAt } \| null`, where the snippet was last seen running |
+
+`accent` is a `#rrggbb` brand colour. Text on it is chosen by the client for contrast (`inkOn` in
+`lib/widget.ts`), so the server never needs a second colour. `voice` holds the phone agent's sound and
+greeting; a change applies from the next call.
+
 ### API keys and webhooks
 
 | Method | Path | Returns |

@@ -7,6 +7,7 @@ import {
   CreditCardIcon,
   GearSixIcon,
   HouseIcon,
+  PaintBrushIcon,
   PhoneIcon,
   PlugsConnectedIcon,
   RobotIcon,
@@ -34,6 +35,7 @@ export const PRIMARY_NAV: NavItem[] = [
   { href: "/contacts", label: "Contacts", icon: AddressBookIcon },
   { href: "/messages", label: "Messages", icon: ChatTextIcon },
   { href: "/phone", label: "Phone numbers", icon: PhoneIcon },
+  { href: "/customize", label: "Widget and voice", icon: PaintBrushIcon },
   { href: "/integrations", label: "Integrations", icon: PlugsConnectedIcon },
 ];
 

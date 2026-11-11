@@ -508,3 +508,57 @@ export interface WebhookDelivery extends Fixture {
   durationMs: number;
   attempt: number;
 }
+
+// ---------------------------------------------------------------------------
+// The website widget and the voice agent's sound: how EZRA looks on the
+// business's site and sounds on its phone line.
+// ---------------------------------------------------------------------------
+
+export type LauncherIcon =
+  | "chat"
+  | "chats"
+  | "headset"
+  | "sparkle"
+  | "robot"
+  | "smiley"
+  | "wave"
+  | "initials"
+  | "logo";
+
+export interface WidgetSettings {
+  /** The business's brand colour, as #rrggbb. Text on it is chosen for contrast. */
+  accent: string;
+  mode: "light" | "dark" | "auto";
+  corners: "sharp" | "soft" | "round";
+  font: "modern" | "friendly" | "classic";
+  launcher: {
+    icon: LauncherIcon;
+    size: "sm" | "md" | "lg";
+    position: "right" | "left";
+    /** Empty for a round button. */
+    label: string;
+    motion: "none" | "pulse" | "bounce" | "wiggle";
+  };
+  greeting: { enabled: boolean; text: string; delaySeconds: number; onPhones: boolean };
+  assistantName: string;
+  subtitle: string;
+  welcome: string;
+  quickReplies: string[];
+  placeholder: string;
+  showCallButton: boolean;
+  showBranding: boolean;
+  voice: {
+    voiceId: string;
+    /** 0.8 slower to 1.2 faster. */
+    pace: number;
+    /** 0 brighter to 1 warmer. */
+    warmth: number;
+    greeting: string;
+    answerAfterRings: 1 | 2;
+    hold: "silence" | "piano" | "acoustic";
+    ambience: "none" | "office";
+    naturalPauses: boolean;
+    interrupt: boolean;
+    spanish: boolean;
+  };
+}

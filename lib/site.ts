@@ -35,6 +35,7 @@ export const APP_ROUTES = [
   "/contacts",
   "/messages",
   "/phone",
+  "/customize",
   "/numbers",
   "/handoff",
   "/analytics",
