@@ -23,12 +23,17 @@ import {
 import { Field, Input, Switch, Textarea } from "@/components/ui/field";
 import { Badge, type BadgeProps } from "@/components/ui/status";
 import type {
+  FollowUpRun,
+  FollowUpSettings,
   Member,
   MessageChannel,
   MessageTemplate,
+  ReviewRun,
+  ReviewSettings,
   SentMessage,
   TeamAlert,
 } from "@/lib/api/types";
+import { Automations } from "./automations";
 import { NOW } from "@/lib/mock/fixtures";
 import * as fmt from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -100,11 +105,19 @@ export function Messages({
   alerts: initialAlerts,
   sent,
   members,
+  followUps,
+  reviews,
+  followUpRuns,
+  reviewRuns,
 }: {
   templates: MessageTemplate[];
   alerts: TeamAlert[];
   sent: SentMessage[];
   members: Member[];
+  followUps: FollowUpSettings;
+  reviews: ReviewSettings;
+  followUpRuns: FollowUpRun[];
+  reviewRuns: ReviewRun[];
 }) {
   const [templates, setTemplates] = React.useState(initialTemplates);
   const [alerts, setAlerts] = React.useState(initialAlerts);
@@ -179,6 +192,14 @@ export function Messages({
           ) : null}
         </p>
       </div>
+
+      {/* Automations: follow-ups on unused booking links, and review requests */}
+      <Automations
+        followUps={followUps}
+        reviews={reviews}
+        followUpRuns={followUpRuns}
+        reviewRuns={reviewRuns}
+      />
 
       {/* To customers */}
       <section aria-labelledby="to-customers">

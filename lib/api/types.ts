@@ -562,3 +562,73 @@ export interface WidgetSettings {
     spanish: boolean;
   };
 }
+
+// ---------------------------------------------------------------------------
+// Automations: following up on booking links nobody used, and asking for a
+// review once a booking is done.
+// ---------------------------------------------------------------------------
+
+export interface FollowUpStep {
+  id: string;
+  /** Hours after the booking link was sent. */
+  afterHours: number;
+  channel: MessageChannel;
+  subject: string | null;
+  body: string;
+}
+
+export interface FollowUpSettings extends Fixture {
+  enabled: boolean;
+  steps: FollowUpStep[];
+  /** Booking always stops the sequence. These are the other reasons. */
+  stopWhenReplied: boolean;
+  stopWhenCalled: boolean;
+  /** Hold texts that would land between 8pm and 8am in the customer's time zone. */
+  quietHours: boolean;
+  stats30d: { started: number; booked: number; optedOut: number };
+}
+
+export type ReviewPlatformKey = "google" | "facebook" | "tripadvisor" | "website";
+
+export interface ReviewSettings extends Fixture {
+  enabled: boolean;
+  /** Hours after the booking ends. */
+  afterHours: number;
+  channels: MessageChannel[];
+  /** Ask for a score from 1 to 5 by reply first, then send the review link. */
+  askScoreFirst: boolean;
+  scoreQuestion: string;
+  body: string;
+  lowScoreReply: string;
+  /** Tell the team when someone scores 3 or lower. They still get the link. */
+  alertOnLowScore: boolean;
+  /** Never ask the same person twice inside this many days. */
+  onceEveryDays: number;
+  platforms: { key: ReviewPlatformKey; url: string; enabled: boolean }[];
+  stats30d: { asked: number; scored: number; reviewed: number; averageScore: number };
+}
+
+export interface FollowUpRun extends Fixture {
+  id: string;
+  name: string | null;
+  e164: string;
+  service: string;
+  linkSentAt: string;
+  /** Steps already sent. */
+  sent: number;
+  /** When the next one goes out, or null when the sequence has ended. */
+  nextAt: string | null;
+  state: "waiting" | "booked" | "replied" | "opted-out";
+}
+
+export interface ReviewRun extends Fixture {
+  id: string;
+  name: string;
+  e164: string;
+  service: string;
+  completedAt: string;
+  askedAt: string;
+  score: number | null;
+  state: "asked" | "scored" | "reviewed";
+  platform: ReviewPlatformKey | null;
+}

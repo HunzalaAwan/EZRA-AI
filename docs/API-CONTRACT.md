@@ -224,6 +224,27 @@ signing in again.
 `payments`, `automation`. It includes `booking` for tour, activity and ticket platforms. Known keys are `fareharbor` and
 `ezra-pro`. A connected booking platform is where the agent's checkout links point.
 
+### Follow-ups and review requests
+
+| Method | Path | Returns |
+|---|---|---|
+| GET | `/automations/follow-ups` | `FollowUpSettings` |
+| PUT | `/automations/follow-ups` | `FollowUpSettings`, body the whole object |
+| GET | `/automations/follow-ups/runs?state=` | `FollowUpRun[]` |
+| POST | `/automations/follow-ups/runs/:id/stop` | `FollowUpRun` |
+| GET | `/automations/reviews` | `ReviewSettings` |
+| PUT | `/automations/reviews` | `ReviewSettings`, body the whole object |
+| GET | `/automations/reviews/runs` | `ReviewRun[]` |
+
+A follow-up run starts when a booking link is sent and ends the moment the link books, and also on a reply,
+a call, or STOP when those are switched on. Step times count from the link, not from the previous step,
+and texts due between 8pm and 8am in the customer's time zone wait for 8am when `quietHours` is on. Every
+text carries the STOP line.
+
+A review run starts `afterHours` after a booking ends, never for a cancellation or a no-show, and never twice
+for one person inside `onceEveryDays`. Every person receives the review link whatever score they give: the
+server must not filter by score. A score of 3 or lower also alerts the team when `alertOnLowScore` is on.
+
 ### Website widget and voice
 
 | Method | Path | Returns |

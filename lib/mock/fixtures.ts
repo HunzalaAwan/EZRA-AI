@@ -13,6 +13,10 @@
 
 import type {
   Agent,
+  FollowUpRun,
+  FollowUpSettings,
+  ReviewRun,
+  ReviewSettings,
   WidgetSettings,
   ApiKey,
   WebhookDelivery,
@@ -1851,3 +1855,80 @@ export const widgetSettings: WidgetSettings = {
     spanish: true,
   },
 };
+
+// ---------------------------------------------------------------------------
+// Automations: booking link follow-ups and review requests
+// ---------------------------------------------------------------------------
+
+const hoursAgo = (h: number) => new Date(NOW.getTime() - h * 3_600_000).toISOString();
+const hoursAhead = (h: number) => new Date(NOW.getTime() + h * 3_600_000).toISOString();
+
+export const followUpSettings: FollowUpSettings = {
+  ...F,
+  enabled: true,
+  steps: [
+    {
+      id: "fu_1",
+      afterHours: 2,
+      channel: "sms",
+      subject: null,
+      body: "Hi {first_name}, it's {business}. Your {service} is still open to book whenever suits you: {booking_link}",
+    },
+    {
+      id: "fu_2",
+      afterHours: 24,
+      channel: "sms",
+      subject: null,
+      body: "Morning {first_name}! Times for {service} are filling up this week. Grab one here, or just reply and we'll sort it: {booking_link}",
+    },
+    {
+      id: "fu_3",
+      afterHours: 72,
+      channel: "email",
+      subject: "Still thinking about your {service}?",
+      body: "Hi {first_name}, no pressure at all. If you'd still like to come in, the link below shows every open time. If something held you back, reply and tell us, or call {business_phone}.\n\n{booking_link}",
+    },
+  ],
+  stopWhenReplied: true,
+  stopWhenCalled: true,
+  quietHours: true,
+  stats30d: { started: 287, booked: 61, optedOut: 4 },
+};
+
+export const reviewSettings: ReviewSettings = {
+  ...F,
+  enabled: true,
+  afterHours: 3,
+  channels: ["sms"],
+  askScoreFirst: true,
+  scoreQuestion: "Hi {first_name}, thanks for coming in to {business} today. How did we do, from 1 to 5?",
+  body: "Thank you, {first_name}! Would you mind sharing that in a quick review? It helps other people find us: {review_link}",
+  lowScoreReply:
+    "Thank you for being honest, {first_name}. We're sorry it fell short. Someone from the office will call you today. If you'd like to share it publicly too, you can do that here: {review_link}",
+  alertOnLowScore: true,
+  onceEveryDays: 90,
+  platforms: [
+    { key: "google", url: "https://g.page/r/CbX4tQ9aldercreek/review", enabled: true },
+    { key: "facebook", url: "https://www.facebook.com/aldercreekdental/reviews", enabled: false },
+    { key: "tripadvisor", url: "", enabled: false },
+    { key: "website", url: "", enabled: false },
+  ],
+  stats30d: { asked: 412, scored: 233, reviewed: 97, averageScore: 4.62 },
+};
+
+export const followUpRuns: FollowUpRun[] = [
+  { ...F, id: "fr_1", name: "Marisol Vega", e164: "+15415508841", service: "Cleaning", linkSentAt: hoursAgo(1.3), sent: 0, nextAt: hoursAhead(0.7), state: "waiting" },
+  { ...F, id: "fr_2", name: "Tobias Lindqvist", e164: "+15417283095", service: "Cosmetic consult", linkSentAt: hoursAgo(19), sent: 1, nextAt: hoursAhead(5), state: "waiting" },
+  { ...F, id: "fr_3", name: null, e164: "+15412208817", service: "New patient exam and x-ray", linkSentAt: hoursAgo(50), sent: 2, nextAt: hoursAhead(22), state: "waiting" },
+  { ...F, id: "fr_4", name: "Delphine Okafor", e164: "+15419273340", service: "Cleaning", linkSentAt: hoursAgo(26), sent: 2, nextAt: null, state: "booked" },
+  { ...F, id: "fr_5", name: "Walt Brenneman", e164: "+15413851166", service: "Emergency visit", linkSentAt: hoursAgo(4), sent: 1, nextAt: null, state: "replied" },
+  { ...F, id: "fr_6", name: "Mette Halvorsen", e164: "+14583309015", service: "Cosmetic consult", linkSentAt: hoursAgo(80), sent: 3, nextAt: null, state: "opted-out" },
+];
+
+export const reviewRuns: ReviewRun[] = [
+  { ...F, id: "rr_1", name: "Nadia Okonkwo", e164: "+15414197732", service: "Cleaning", completedAt: hoursAgo(5), askedAt: hoursAgo(2), score: 5, state: "reviewed", platform: "google" },
+  { ...F, id: "rr_2", name: "Gerald Whitmore", e164: "+15413064488", service: "Emergency visit", completedAt: hoursAgo(6.5), askedAt: hoursAgo(3.5), score: 2, state: "scored", platform: null },
+  { ...F, id: "rr_3", name: "Delphine Okafor", e164: "+15419273340", service: "New patient exam and x-ray", completedAt: hoursAgo(8), askedAt: hoursAgo(5), score: 4, state: "scored", platform: null },
+  { ...F, id: "rr_4", name: "Tobias Lindqvist", e164: "+15417283095", service: "Cleaning", completedAt: hoursAgo(4), askedAt: hoursAgo(1), score: null, state: "asked", platform: null },
+  { ...F, id: "rr_5", name: "Marisol Vega", e164: "+15415508841", service: "Cosmetic consult", completedAt: hoursAgo(27), askedAt: hoursAgo(24), score: 5, state: "reviewed", platform: "google" },
+];
