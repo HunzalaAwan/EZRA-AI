@@ -95,6 +95,11 @@ Confirmed for this build:
 - A public API and webhooks, added at the user's direction on 2026-11-09. They live on their own "API and
   webhooks" tab of Integrations, never the default view, so principle 4 still holds for the owner. The
   Integrations directory lists many apps as connectable; which ones actually ship first is still open below.
+- **Automations** (renamed from Messages at the user's direction on 2026-11-11, route `/automations`, with
+  `/messages` redirecting): booking link follow-ups and review requests each have their own screen with
+  Results, Setup, and People, plus a shared library of block-built email templates. Review requests send the
+  same ask and link to everyone; there is no score-first step and no filtering by satisfaction, also at the
+  user's direction.
 - The app must run end to end with no backend, against a typed mock data layer.
 
 Explicitly undecided, do not invent:

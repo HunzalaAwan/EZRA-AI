@@ -230,20 +230,44 @@ signing in again.
 |---|---|---|
 | GET | `/automations/follow-ups` | `FollowUpSettings` |
 | PUT | `/automations/follow-ups` | `FollowUpSettings`, body the whole object |
+| GET | `/automations/follow-ups/results` | `FollowUpResults`, the last 30 days |
+| GET | `/automations/follow-ups/bookings` | `FollowUpBooking[]`, newest first |
 | GET | `/automations/follow-ups/runs?state=` | `FollowUpRun[]` |
 | POST | `/automations/follow-ups/runs/:id/stop` | `FollowUpRun` |
 | GET | `/automations/reviews` | `ReviewSettings` |
 | PUT | `/automations/reviews` | `ReviewSettings`, body the whole object |
-| GET | `/automations/reviews/runs` | `ReviewRun[]` |
+| GET | `/automations/reviews/results` | `ReviewResults`, the last 30 days |
+| GET | `/automations/reviews/runs?state=` | `ReviewRun[]` |
 
 A follow-up run starts when a booking link is sent and ends the moment the link books, and also on a reply,
 a call, or STOP when those are switched on. Step times count from the link, not from the previous step,
 and texts due between 8pm and 8am in the customer's time zone wait for 8am when `quietHours` is on. Every
-text carries the STOP line.
+text carries the STOP line. A text step sends `body`; an email step sends the template `emailTemplateId`.
+
+Attribution: a booking counts toward follow-ups once, against the last follow-up whose link the customer
+tapped, and only when it is made within 7 days of that follow-up. `bookedValueCents` is the list price of
+the booked services. `byStep` uses the same rule, so its `booked` values sum to `booked`.
 
 A review run starts `afterHours` after a booking ends, never for a cancellation or a no-show, and never twice
-for one person inside `onceEveryDays`. Every person receives the review link whatever score they give: the
-server must not filter by score. A score of 3 or lower also alerts the team when `alertOnLowScore` is on.
+for one person inside `onceEveryDays`. There is no score or rating question: everyone receives the same ask
+and the same link, and the server must never filter who is asked by any measure of satisfaction. One
+reminder goes `reminder.afterDays` later to people who have not opened the link. `reviewed`, `rating`, and
+`excerpt` are read back from the platform (Google Business Profile, Facebook) and matched to the person
+asked; a review that cannot be matched is not counted.
+
+### Email templates
+
+| Method | Path | Returns |
+|---|---|---|
+| GET | `/email-templates` | `EmailTemplate[]` |
+| POST | `/email-templates` | `EmailTemplate`, body without `id` |
+| PUT | `/email-templates/:id` | `EmailTemplate`, body the whole template |
+| DELETE | `/email-templates/:id` | 204, or 409 while an automation still sends it |
+| POST | `/email-templates/:id/test` | 202, sends to the signed-in member with sample details |
+
+An email is `blocks` rendered by the server into email-safe HTML, plus a plain-text part built from the same
+blocks. `{variable}` tokens are filled per customer. A `stars` block renders five links that all open the
+same review page. Every email carries the postal address and a one-click unsubscribe header and link.
 
 ### Website widget and voice
 

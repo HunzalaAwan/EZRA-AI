@@ -23,23 +23,19 @@ import {
 import { Field, Input, Switch, Textarea } from "@/components/ui/field";
 import { Badge, type BadgeProps } from "@/components/ui/status";
 import type {
-  FollowUpRun,
-  FollowUpSettings,
   Member,
   MessageChannel,
   MessageTemplate,
-  ReviewRun,
-  ReviewSettings,
   SentMessage,
   TeamAlert,
 } from "@/lib/api/types";
-import { Automations } from "./automations";
 import { NOW } from "@/lib/mock/fixtures";
 import * as fmt from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 /**
- * Messages: everything EZRA sends that is not the conversation itself.
+ * The simple automations: everything EZRA sends after a conversation that is
+ * not a follow-up or a review request, which have screens of their own.
  *
  * Two audiences, kept apart because they answer different questions.
  *
@@ -100,24 +96,16 @@ const STATUS: Record<
   failed: { label: "Not delivered", tone: "danger", icon: WarningCircleIcon },
 };
 
-export function Messages({
+export function MessageSettings({
   templates: initialTemplates,
   alerts: initialAlerts,
   sent,
   members,
-  followUps,
-  reviews,
-  followUpRuns,
-  reviewRuns,
 }: {
   templates: MessageTemplate[];
   alerts: TeamAlert[];
   sent: SentMessage[];
   members: Member[];
-  followUps: FollowUpSettings;
-  reviews: ReviewSettings;
-  followUpRuns: FollowUpRun[];
-  reviewRuns: ReviewRun[];
 }) {
   const [templates, setTemplates] = React.useState(initialTemplates);
   const [alerts, setAlerts] = React.useState(initialAlerts);
@@ -173,42 +161,24 @@ export function Messages({
 
   return (
     <div className="space-y-6">
-      <div>
-        <p className="max-w-[62ch] text-base leading-relaxed text-ink-muted">
-          The texts and emails that go out after a conversation, and what your
-          team hears about. Everything here is in plain words: edit it the way
-          you would say it.
-        </p>
-        <p className="mt-2 text-xs text-ink-muted">
-          <span data-numeric className="font-mono text-ink">
-            {fmt.count(sent30d)}
-          </span>{" "}
-          sent to customers in the last 30 days.
-          {failed > 0 ? (
-            <span className="text-danger">
-              {" "}
-              {fmt.count(failed)} could not be delivered today.
-            </span>
-          ) : null}
-        </p>
-      </div>
-
-      {/* Automations: follow-ups on unused booking links, and review requests */}
-      <Automations
-        followUps={followUps}
-        reviews={reviews}
-        followUpRuns={followUpRuns}
-        reviewRuns={reviewRuns}
-      />
-
       {/* To customers */}
       <section aria-labelledby="to-customers">
         <h3 id="to-customers" className="font-display text-lg font-semibold text-ink">
-          To your customers
+          After every conversation
         </h3>
         <p className="mt-0.5 max-w-[62ch] text-sm text-ink-muted">
-          Sent automatically after the conversation. Every agent uses the same
-          ones.
+          Confirmations, reminders, and texts back. Every agent uses the same
+          ones.{" "}
+          <span data-numeric className="font-mono text-ink">
+            {fmt.count(sent30d)}
+          </span>{" "}
+          sent in the last 30 days
+          {failed > 0 ? (
+            <span className="text-danger">
+              , {fmt.count(failed)} not delivered today
+            </span>
+          ) : null}
+          .
         </p>
 
         <Card className="mt-3">
@@ -231,7 +201,7 @@ export function Messages({
                         }}
                         className="mt-0.5"
                       />
-                      <div className="min-w-0 flex-1">
+                      <div className="min-w-0 grow basis-60">
                         <label htmlFor={switchId} className="text-sm font-medium text-ink">
                           {t.name}
                         </label>
@@ -443,7 +413,7 @@ export function Messages({
                       }
                       className="mt-0.5"
                     />
-                    <div className="min-w-0 flex-1">
+                    <div className="min-w-0 grow basis-60">
                       <label htmlFor={id} className="text-sm font-medium text-ink">
                         {a.name}
                       </label>

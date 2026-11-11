@@ -11,7 +11,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import type { BookingLinkDay, DayPoint, HourPoint } from "@/lib/api/types";
+import type { AutomationDay, BookingLinkDay, DayPoint, HourPoint } from "@/lib/api/types";
 import { count, hourLabel, weekday } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -343,6 +343,56 @@ export function BookingLinkChart({ data }: { data: BookingLinkDay[] }) {
         caption="Booking links sent and booked, by day"
         head={["Day", "Sent", "Booked"]}
         rows={data.map((d) => [weekday(d.date), d.sent, d.booked])}
+      />
+    </div>
+  );
+}
+
+/**
+ * An automation, day by day: how many it reached, and how many of those did
+ * the thing it was for. The outcome is a subset of the reach, so the two stack
+ * on one axis, in the same roles as the booking link chart.
+ */
+export function ConversionChart({
+  data,
+  convertedLabel,
+  restLabel,
+  caption,
+}: {
+  data: AutomationDay[];
+  convertedLabel: string;
+  restLabel: string;
+  caption: string;
+}) {
+  const shaped = data.map((d) => ({
+    label: weekday(d.date),
+    [convertedLabel]: d.converted,
+    [restLabel]: d.sent - d.converted,
+  }));
+  return (
+    <div>
+      <Legend
+        items={[
+          { label: convertedLabel, color: S1 },
+          { label: restLabel, color: S2 },
+        ]}
+      />
+      <div className="mt-3 h-56 w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={shaped} margin={{ top: 4, right: 4, left: -18, bottom: 0 }}>
+            <CartesianGrid stroke={GRID} vertical={false} />
+            <XAxis dataKey="label" {...axisProps} interval={0} minTickGap={0} />
+            <YAxis {...axisProps} width={44} allowDecimals={false} />
+            <Tooltip content={<ChartTooltip />} cursor={{ fill: "var(--color-panel)" }} />
+            <Bar dataKey={convertedLabel} stackId="a" fill={S1} />
+            <Bar dataKey={restLabel} stackId="a" fill={S2} radius={[4, 4, 0, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+      <TableView
+        caption={caption}
+        head={["Day", "Reached", convertedLabel]}
+        rows={data.map((d) => [weekday(d.date), d.sent, d.converted])}
       />
     </div>
   );

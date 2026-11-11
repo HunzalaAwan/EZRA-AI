@@ -16,6 +16,13 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   typedRoutes: true,
   poweredByHeader: false,
+  async redirects() {
+    // The section was called Messages until it grew follow-ups and reviews.
+    return [
+      { source: "/messages", destination: "/automations", permanent: true },
+      { source: "/messages/:path*", destination: "/automations/:path*", permanent: true },
+    ];
+  },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },

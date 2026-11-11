@@ -33,7 +33,7 @@ export const APP_ROUTES = [
   "/knowledge",
   "/conversations",
   "/contacts",
-  "/messages",
+  "/automations",
   "/phone",
   "/customize",
   "/numbers",

@@ -13,8 +13,12 @@
 
 import type {
   Agent,
+  EmailTemplate,
+  FollowUpBooking,
+  FollowUpResults,
   FollowUpRun,
   FollowUpSettings,
+  ReviewResults,
   ReviewRun,
   ReviewSettings,
   WidgetSettings,
@@ -1871,50 +1875,68 @@ export const followUpSettings: FollowUpSettings = {
       id: "fu_1",
       afterHours: 2,
       channel: "sms",
-      subject: null,
       body: "Hi {first_name}, it's {business}. Your {service} is still open to book whenever suits you: {booking_link}",
+      emailTemplateId: null,
     },
     {
       id: "fu_2",
       afterHours: 24,
       channel: "sms",
-      subject: null,
       body: "Morning {first_name}! Times for {service} are filling up this week. Grab one here, or just reply and we'll sort it: {booking_link}",
+      emailTemplateId: null,
     },
     {
       id: "fu_3",
       afterHours: 72,
       channel: "email",
-      subject: "Still thinking about your {service}?",
-      body: "Hi {first_name}, no pressure at all. If you'd still like to come in, the link below shows every open time. If something held you back, reply and tell us, or call {business_phone}.\n\n{booking_link}",
+      body: "",
+      emailTemplateId: "et_fu_gentle",
     },
   ],
   stopWhenReplied: true,
   stopWhenCalled: true,
   quietHours: true,
-  stats30d: { started: 287, booked: 61, optedOut: 4 },
 };
 
-export const reviewSettings: ReviewSettings = {
+export const followUpResults: FollowUpResults = {
   ...F,
-  enabled: true,
-  afterHours: 3,
-  channels: ["sms"],
-  askScoreFirst: true,
-  scoreQuestion: "Hi {first_name}, thanks for coming in to {business} today. How did we do, from 1 to 5?",
-  body: "Thank you, {first_name}! Would you mind sharing that in a quick review? It helps other people find us: {review_link}",
-  lowScoreReply:
-    "Thank you for being honest, {first_name}. We're sorry it fell short. Someone from the office will call you today. If you'd like to share it publicly too, you can do that here: {review_link}",
-  alertOnLowScore: true,
-  onceEveryDays: 90,
-  platforms: [
-    { key: "google", url: "https://g.page/r/CbX4tQ9aldercreek/review", enabled: true },
-    { key: "facebook", url: "https://www.facebook.com/aldercreekdental/reviews", enabled: false },
-    { key: "tripadvisor", url: "", enabled: false },
-    { key: "website", url: "", enabled: false },
+  started: 287,
+  tapped: 139,
+  booked: 61,
+  bookedPrev: 48,
+  optedOut: 4,
+  bookedValueCents: 1_183_450,
+  byStep: [
+    { stepId: "fu_1", sent: 287, tapped: 88, booked: 37 },
+    { stepId: "fu_2", sent: 231, tapped: 38, booked: 17 },
+    { stepId: "fu_3", sent: 176, tapped: 13, booked: 7 },
   ],
-  stats30d: { asked: 412, scored: 233, reviewed: 97, averageScore: 4.62 },
+  daily: [
+    { date: dayOf(13), sent: 9, converted: 2 },
+    { date: dayOf(12), sent: 11, converted: 3 },
+    { date: dayOf(11), sent: 8, converted: 1 },
+    { date: dayOf(10), sent: 12, converted: 4 },
+    { date: dayOf(9), sent: 10, converted: 2 },
+    { date: dayOf(8), sent: 7, converted: 3 },
+    { date: dayOf(7), sent: 5, converted: 1 },
+    { date: dayOf(6), sent: 11, converted: 2 },
+    { date: dayOf(5), sent: 13, converted: 4 },
+    { date: dayOf(4), sent: 9, converted: 3 },
+    { date: dayOf(3), sent: 12, converted: 2 },
+    { date: dayOf(2), sent: 10, converted: 3 },
+    { date: dayOf(1), sent: 8, converted: 2 },
+    { date: dayOf(0), sent: 6, converted: 1 },
+  ],
 };
+
+export const followUpBookings: FollowUpBooking[] = [
+  { ...F, id: "fb_1", name: "Delphine Okafor", e164: "+15419273340", service: "Cleaning", stepId: "fu_2", linkSentAt: hoursAgo(26), bookedAt: hoursAgo(1.6), valueCents: 18_900 },
+  { ...F, id: "fb_2", name: "Ravi Chandrasekar", e164: "+15413318820", service: "New patient exam and x-ray", stepId: "fu_1", linkSentAt: hoursAgo(9.5), bookedAt: hoursAgo(7.2), valueCents: 26_400 },
+  { ...F, id: "fb_3", name: "Corinne Batiste", e164: "+15412093371", service: "Cosmetic consult", stepId: "fu_3", linkSentAt: hoursAgo(97), bookedAt: hoursAgo(22), valueCents: 9_500 },
+  { ...F, id: "fb_4", name: "Hollis Varga", e164: "+15417740158", service: "Cleaning", stepId: "fu_1", linkSentAt: hoursAgo(31), bookedAt: hoursAgo(28.4), valueCents: 18_900 },
+  { ...F, id: "fb_5", name: "Anneliese Moreau", e164: "+14582261903", service: "Whitening", stepId: "fu_2", linkSentAt: hoursAgo(55), bookedAt: hoursAgo(30.7), valueCents: 42_500 },
+  { ...F, id: "fb_6", name: "Tomasz Wierzbicki", e164: "+15413886412", service: "Emergency visit", stepId: "fu_1", linkSentAt: hoursAgo(50), bookedAt: hoursAgo(47.9), valueCents: 21_750 },
+];
 
 export const followUpRuns: FollowUpRun[] = [
   { ...F, id: "fr_1", name: "Marisol Vega", e164: "+15415508841", service: "Cleaning", linkSentAt: hoursAgo(1.3), sent: 0, nextAt: hoursAhead(0.7), state: "waiting" },
@@ -1925,10 +1947,176 @@ export const followUpRuns: FollowUpRun[] = [
   { ...F, id: "fr_6", name: "Mette Halvorsen", e164: "+14583309015", service: "Cosmetic consult", linkSentAt: hoursAgo(80), sent: 3, nextAt: null, state: "opted-out" },
 ];
 
+export const reviewSettings: ReviewSettings = {
+  ...F,
+  enabled: true,
+  afterHours: 3,
+  channels: ["sms"],
+  body: "Hi {first_name}, thanks for visiting {business} today! A quick review helps other people find us: {review_link}",
+  emailTemplateId: "et_review",
+  reminder: {
+    enabled: true,
+    afterDays: 2,
+    body: "Hi {first_name}, one last nudge from {business}. If you have 30 seconds, we'd really value a review: {review_link}",
+  },
+  onceEveryDays: 90,
+  platforms: [
+    { key: "google", url: "https://g.page/r/CbX4tQ9aldercreek/review", enabled: true },
+    { key: "facebook", url: "https://www.facebook.com/aldercreekdental/reviews", enabled: true },
+    { key: "tripadvisor", url: "", enabled: false },
+    { key: "website", url: "", enabled: false },
+  ],
+};
+
+export const reviewResults: ReviewResults = {
+  ...F,
+  asked: 412,
+  tapped: 171,
+  reviewed: 97,
+  reviewedPrev: 71,
+  reminded: 238,
+  reviewedAfterReminder: 29,
+  averageRating: 4.79,
+  byPlatform: [
+    { key: "google", reviews: 84, rating: 4.82 },
+    { key: "facebook", reviews: 13, rating: 4.62 },
+  ],
+  byChannel: [
+    { channel: "sms", asked: 389, reviewed: 93 },
+    { channel: "email", asked: 23, reviewed: 4 },
+  ],
+  daily: [
+    { date: dayOf(13), sent: 14, converted: 3 },
+    { date: dayOf(12), sent: 16, converted: 4 },
+    { date: dayOf(11), sent: 13, converted: 2 },
+    { date: dayOf(10), sent: 17, converted: 5 },
+    { date: dayOf(9), sent: 15, converted: 3 },
+    { date: dayOf(8), sent: 6, converted: 2 },
+    { date: dayOf(7), sent: 3, converted: 1 },
+    { date: dayOf(6), sent: 15, converted: 4 },
+    { date: dayOf(5), sent: 18, converted: 3 },
+    { date: dayOf(4), sent: 14, converted: 4 },
+    { date: dayOf(3), sent: 16, converted: 5 },
+    { date: dayOf(2), sent: 13, converted: 2 },
+    { date: dayOf(1), sent: 7, converted: 3 },
+    { date: dayOf(0), sent: 9, converted: 1 },
+  ],
+};
+
 export const reviewRuns: ReviewRun[] = [
-  { ...F, id: "rr_1", name: "Nadia Okonkwo", e164: "+15414197732", service: "Cleaning", completedAt: hoursAgo(5), askedAt: hoursAgo(2), score: 5, state: "reviewed", platform: "google" },
-  { ...F, id: "rr_2", name: "Gerald Whitmore", e164: "+15413064488", service: "Emergency visit", completedAt: hoursAgo(6.5), askedAt: hoursAgo(3.5), score: 2, state: "scored", platform: null },
-  { ...F, id: "rr_3", name: "Delphine Okafor", e164: "+15419273340", service: "New patient exam and x-ray", completedAt: hoursAgo(8), askedAt: hoursAgo(5), score: 4, state: "scored", platform: null },
-  { ...F, id: "rr_4", name: "Tobias Lindqvist", e164: "+15417283095", service: "Cleaning", completedAt: hoursAgo(4), askedAt: hoursAgo(1), score: null, state: "asked", platform: null },
-  { ...F, id: "rr_5", name: "Marisol Vega", e164: "+15415508841", service: "Cosmetic consult", completedAt: hoursAgo(27), askedAt: hoursAgo(24), score: 5, state: "reviewed", platform: "google" },
+  { ...F, id: "rr_1", name: "Nadia Okonkwo", e164: "+15414197732", service: "Cleaning", completedAt: hoursAgo(5), askedAt: hoursAgo(2), channel: "sms", state: "reviewed", platform: "google", rating: 5, excerpt: "Dr. Castellanos explained every step and the hygienist was so gentle. In and out in under an hour.", reviewedAt: hoursAgo(1.4) },
+  { ...F, id: "rr_2", name: "Gerald Whitmore", e164: "+15413064488", service: "Emergency visit", completedAt: hoursAgo(6.5), askedAt: hoursAgo(3.5), channel: "sms", state: "tapped", platform: null, rating: null, excerpt: null, reviewedAt: null },
+  { ...F, id: "rr_3", name: "Priya Raman", e164: "+15419906214", service: "New patient exam and x-ray", completedAt: hoursAgo(28), askedAt: hoursAgo(25), channel: "email", state: "reviewed", platform: "facebook", rating: 4, excerpt: "Friendly front desk and they got me in the same week. Parking at the Bend office is tight.", reviewedAt: hoursAgo(19) },
+  { ...F, id: "rr_4", name: "Tobias Lindqvist", e164: "+15417283095", service: "Cleaning", completedAt: hoursAgo(4), askedAt: hoursAgo(1), channel: "sms", state: "asked", platform: null, rating: null, excerpt: null, reviewedAt: null },
+  { ...F, id: "rr_5", name: "Marisol Vega", e164: "+15415508841", service: "Cosmetic consult", completedAt: hoursAgo(51), askedAt: hoursAgo(48), channel: "sms", state: "reviewed", platform: "google", rating: 5, excerpt: "Honest about what I actually needed and what I didn't. That's rare.", reviewedAt: hoursAgo(0.6) },
+  { ...F, id: "rr_6", name: "Lionel Achterberg", e164: "+15412287759", service: "Crown fitting", completedAt: hoursAgo(53), askedAt: hoursAgo(50), channel: "sms", state: "reminded", platform: null, rating: null, excerpt: null, reviewedAt: null },
+];
+
+// ---------------------------------------------------------------------------
+// Email templates
+// ---------------------------------------------------------------------------
+
+const ALDER_STYLE = { accent: "#0f766e", corners: "soft", font: "modern", header: "band" } as const;
+
+export const emailTemplates: EmailTemplate[] = [
+  {
+    ...F,
+    id: "et_fu_gentle",
+    name: "Still thinking it over",
+    purpose: "follow-up",
+    subject: "Still thinking about your {service}?",
+    preheader: "Every open time is one tap away.",
+    blocks: [
+      { id: "b1", kind: "heading", text: "Your {service} is still open to book" },
+      { id: "b2", kind: "text", text: "Hi {first_name}, no pressure at all. If you'd still like to come in, the button below shows every open time across our offices." },
+      { id: "b3", kind: "button", label: "See open times", link: "booking_link" },
+      { id: "b4", kind: "text", text: "If something held you back, like cost, timing, or a question about the visit, just reply to this email or call us on {business_phone}. A real person reads every reply." },
+      { id: "b5", kind: "signoff", text: "Hope to see you soon,", name: "The team at {business}" },
+    ],
+    style: ALDER_STYLE,
+    updatedAt: hoursAgo(26),
+  },
+  {
+    ...F,
+    id: "et_fu_week",
+    name: "Times filling up",
+    purpose: "follow-up",
+    subject: "A few {service} times left this week",
+    preheader: "Book in under a minute, or reply and we'll find one for you.",
+    blocks: [
+      { id: "b1", kind: "heading", text: "This week is nearly full" },
+      { id: "b2", kind: "text", text: "Hi {first_name}, we still have a handful of {service} times over the next few days. Pick one that suits you and you're done." },
+      { id: "b3", kind: "button", label: "Book my visit", link: "booking_link" },
+      { id: "b4", kind: "divider" },
+      { id: "b5", kind: "text", text: "Rather talk to someone? Call {business_phone} and we'll book it with you." },
+      { id: "b6", kind: "signoff", text: "Thanks,", name: "{business}" },
+    ],
+    style: ALDER_STYLE,
+    updatedAt: hoursAgo(212),
+  },
+  {
+    ...F,
+    id: "et_review",
+    name: "Thanks for coming in",
+    purpose: "review",
+    subject: "Thanks for visiting {business}, {first_name}",
+    preheader: "Thirty seconds that helps other families find a dentist they trust.",
+    blocks: [
+      { id: "b1", kind: "heading", text: "Thanks for coming in today" },
+      { id: "b2", kind: "text", text: "Hi {first_name}, it was good to see you for your {service}. If you have a moment, we'd love to hear how it went." },
+      { id: "b3", kind: "stars", prompt: "How was your visit? Tap to leave a review." },
+      { id: "b4", kind: "text", text: "Reviews help other people in Bend find a practice they can trust, and every one is read by the whole team." },
+      { id: "b5", kind: "signoff", text: "With thanks,", name: "Dr. Omar Castellanos and the team" },
+    ],
+    style: ALDER_STYLE,
+    updatedAt: hoursAgo(74),
+  },
+  {
+    ...F,
+    id: "et_review_short",
+    name: "Quick review ask",
+    purpose: "review",
+    subject: "Would you leave us a quick review?",
+    preheader: "It takes less than a minute.",
+    blocks: [
+      { id: "b1", kind: "text", text: "Hi {first_name}, thanks again for choosing {business}. Would you share a few words about your visit?" },
+      { id: "b2", kind: "button", label: "Leave a review", link: "review_link" },
+      { id: "b3", kind: "signoff", text: "Thank you,", name: "{business}" },
+    ],
+    style: { ...ALDER_STYLE, header: "plain" },
+    updatedAt: hoursAgo(530),
+  },
+  {
+    ...F,
+    id: "et_confirm",
+    name: "Booking confirmed",
+    purpose: "booking",
+    subject: "You're booked: {service}, {booking_time}",
+    preheader: "Everything you need for your visit.",
+    blocks: [
+      { id: "b1", kind: "heading", text: "You're all set, {first_name}" },
+      { id: "b2", kind: "booking" },
+      { id: "b3", kind: "text", text: "Please arrive ten minutes early if this is your first visit. Need to change it? Use the link below or call {business_phone}." },
+      { id: "b4", kind: "button", label: "Change or cancel", link: "booking_link" },
+      { id: "b5", kind: "signoff", text: "See you soon,", name: "The team at {business}" },
+    ],
+    style: ALDER_STYLE,
+    updatedAt: hoursAgo(1180),
+  },
+  {
+    ...F,
+    id: "et_reminder",
+    name: "See you tomorrow",
+    purpose: "booking",
+    subject: "Reminder: {service} tomorrow",
+    preheader: "Reply C to confirm, or change it in one tap.",
+    blocks: [
+      { id: "b1", kind: "heading", text: "See you tomorrow" },
+      { id: "b2", kind: "booking" },
+      { id: "b3", kind: "button", label: "Reschedule", link: "booking_link" },
+      { id: "b4", kind: "signoff", text: "Thanks,", name: "{business}" },
+    ],
+    style: ALDER_STYLE,
+    updatedAt: hoursAgo(860),
+  },
 ];

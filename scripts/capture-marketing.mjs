@@ -23,7 +23,7 @@ const SHOTS = [
   ["analytics-dark", "/dashboard?view=performance", [1440, 900], "dark"],
   ["create-dark", "/agents/new", [1440, 900], "dark"],
   ["numbers-dark", "/phone", [1440, 900], "dark"],
-  ["messages-dark", "/messages", [1440, 900], "dark"],
+  ["messages-dark", "/automations", [1440, 900], "dark"],
   ["dashboard-phone", "/dashboard", [390, 844], "dark"],
   ["conversation-phone", "/conversations/cv_9474", [390, 844], "dark"],
 ];

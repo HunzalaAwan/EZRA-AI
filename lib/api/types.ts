@@ -565,7 +565,8 @@ export interface WidgetSettings {
 
 // ---------------------------------------------------------------------------
 // Automations: following up on booking links nobody used, and asking for a
-// review once a booking is done.
+// review once a booking is done. Each has settings, results, and the people in
+// it right now.
 // ---------------------------------------------------------------------------
 
 export interface FollowUpStep {
@@ -573,8 +574,10 @@ export interface FollowUpStep {
   /** Hours after the booking link was sent. */
   afterHours: number;
   channel: MessageChannel;
-  subject: string | null;
+  /** The text, for a text step. */
   body: string;
+  /** The email template, for an email step. */
+  emailTemplateId: string | null;
 }
 
 export interface FollowUpSettings extends Fixture {
@@ -585,27 +588,37 @@ export interface FollowUpSettings extends Fixture {
   stopWhenCalled: boolean;
   /** Hold texts that would land between 8pm and 8am in the customer's time zone. */
   quietHours: boolean;
-  stats30d: { started: number; booked: number; optedOut: number };
 }
 
-export type ReviewPlatformKey = "google" | "facebook" | "tripadvisor" | "website";
+/** One day of an automation: how many it reached, and how many did the thing. */
+export interface AutomationDay {
+  date: string;
+  sent: number;
+  converted: number;
+}
 
-export interface ReviewSettings extends Fixture {
-  enabled: boolean;
-  /** Hours after the booking ends. */
-  afterHours: number;
-  channels: MessageChannel[];
-  /** Ask for a score from 1 to 5 by reply first, then send the review link. */
-  askScoreFirst: boolean;
-  scoreQuestion: string;
-  body: string;
-  lowScoreReply: string;
-  /** Tell the team when someone scores 3 or lower. They still get the link. */
-  alertOnLowScore: boolean;
-  /** Never ask the same person twice inside this many days. */
-  onceEveryDays: number;
-  platforms: { key: ReviewPlatformKey; url: string; enabled: boolean }[];
-  stats30d: { asked: number; scored: number; reviewed: number; averageScore: number };
+/** What follow-ups achieved in the last 30 days. Bookings are counted once, against the follow-up tapped last. */
+export interface FollowUpResults extends Fixture {
+  started: number;
+  tapped: number;
+  booked: number;
+  bookedPrev: number;
+  optedOut: number;
+  bookedValueCents: number;
+  byStep: { stepId: string; sent: number; tapped: number; booked: number }[];
+  daily: AutomationDay[];
+}
+
+/** A booking that came in through a follow-up. */
+export interface FollowUpBooking extends Fixture {
+  id: string;
+  name: string;
+  e164: string;
+  service: string;
+  stepId: string;
+  linkSentAt: string;
+  bookedAt: string;
+  valueCents: number;
 }
 
 export interface FollowUpRun extends Fixture {
@@ -621,6 +634,39 @@ export interface FollowUpRun extends Fixture {
   state: "waiting" | "booked" | "replied" | "opted-out";
 }
 
+export type ReviewPlatformKey = "google" | "facebook" | "tripadvisor" | "website";
+
+export interface ReviewSettings extends Fixture {
+  enabled: boolean;
+  /** Hours after the booking ends. */
+  afterHours: number;
+  channels: MessageChannel[];
+  /** The text, when sent by text. */
+  body: string;
+  /** The email template, when sent by email. */
+  emailTemplateId: string;
+  /** One gentle reminder for people who have not opened the link. */
+  reminder: { enabled: boolean; afterDays: number; body: string };
+  /** Never ask the same person twice inside this many days. */
+  onceEveryDays: number;
+  platforms: { key: ReviewPlatformKey; url: string; enabled: boolean }[];
+}
+
+/** What review requests achieved in the last 30 days. Ratings are read back from each platform. */
+export interface ReviewResults extends Fixture {
+  asked: number;
+  tapped: number;
+  reviewed: number;
+  reviewedPrev: number;
+  reminded: number;
+  /** Reviews that came in after the reminder rather than the first ask. */
+  reviewedAfterReminder: number;
+  averageRating: number;
+  byPlatform: { key: ReviewPlatformKey; reviews: number; rating: number }[];
+  byChannel: { channel: MessageChannel; asked: number; reviewed: number }[];
+  daily: AutomationDay[];
+}
+
 export interface ReviewRun extends Fixture {
   id: string;
   name: string;
@@ -628,7 +674,53 @@ export interface ReviewRun extends Fixture {
   service: string;
   completedAt: string;
   askedAt: string;
-  score: number | null;
-  state: "asked" | "scored" | "reviewed";
+  channel: MessageChannel;
+  state: "asked" | "reminded" | "tapped" | "reviewed";
   platform: ReviewPlatformKey | null;
+  /** Stars they gave on the platform, once they have reviewed. */
+  rating: number | null;
+  /** The opening of what they wrote. */
+  excerpt: string | null;
+  reviewedAt: string | null;
+}
+
+// ---------------------------------------------------------------------------
+// Email templates. An email is a list of blocks in the business's own look,
+// shared by follow-ups, review requests, and booking messages.
+// ---------------------------------------------------------------------------
+
+export type EmailPurpose = "follow-up" | "review" | "booking" | "general";
+
+/** Where a button goes. Each resolves per customer when the email is sent. */
+export type EmailLink = "booking_link" | "review_link" | "business_phone" | "website";
+
+export type EmailBlock =
+  | { id: string; kind: "heading"; text: string }
+  | { id: string; kind: "text"; text: string }
+  | { id: string; kind: "button"; label: string; link: EmailLink }
+  | { id: string; kind: "booking" }
+  | { id: string; kind: "stars"; prompt: string }
+  | { id: string; kind: "divider" }
+  | { id: string; kind: "signoff"; text: string; name: string };
+
+export type EmailBlockKind = EmailBlock["kind"];
+
+export interface EmailStyle {
+  accent: string;
+  corners: "sharp" | "soft" | "round";
+  font: "modern" | "friendly" | "classic";
+  /** A band of the accent colour across the top, or the name on white. */
+  header: "band" | "plain";
+}
+
+export interface EmailTemplate extends Fixture {
+  id: string;
+  name: string;
+  purpose: EmailPurpose;
+  subject: string;
+  /** The grey line inboxes show after the subject. */
+  preheader: string;
+  blocks: EmailBlock[];
+  style: EmailStyle;
+  updatedAt: string;
 }
