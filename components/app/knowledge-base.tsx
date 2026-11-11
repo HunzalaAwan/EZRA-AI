@@ -35,7 +35,7 @@ import {
 import { EmptyState } from "@/components/ui/empty-state";
 import { Field, Input, Textarea } from "@/components/ui/field";
 import { Badge, type BadgeProps } from "@/components/ui/status";
-import { KnowledgeInterview, type LearnedAnswer } from "./knowledge-interview";
+import { KnowledgeVoiceNote, type VoiceNote } from "./knowledge-voice-note";
 import type {
   Agent,
   DailyNotice,
@@ -111,7 +111,7 @@ const WAYS: { id: Way; label: string; hint: string }[] = [
   { id: "website", label: "A web page", hint: "One page, or your whole site" },
   { id: "text", label: "Write it down", hint: "Hours, policies, a price list" },
   { id: "document", label: "A document", hint: "PDF, Word, or a spreadsheet" },
-  { id: "talk", label: "Talk it through", hint: "Answer a few questions, out loud or typed" },
+  { id: "talk", label: "Say it", hint: "Speak a note and it is written down" },
 ];
 
 export function KnowledgeBase({
@@ -240,26 +240,20 @@ export function KnowledgeBase({
     setAdding(false);
   }
 
-  /** Each answer from the interview becomes one question and answer the agents can use. */
-  function saveInterview(learned: LearnedAnswer[]) {
+  /** A spoken note becomes a note the agents know, like one written down. */
+  function saveVoiceNote(note: VoiceNote) {
     const first = agents.find((a) => a.status === "live")?.id ?? agents[0]?.id ?? "";
-    const stamp = Date.now();
-    learned.forEach((l, i) =>
-      addSource({
-        id: `ks_talk_${stamp}_${i}`,
-        agentId: first,
-        kind: "faq",
-        label: l.topic,
-        detail: l.answer,
-        chunks: 1,
-        lastReadAt: NOW.toISOString(),
-        status: "ready",
-      }),
-    );
-    setAdding(false);
-    toast.success(
-      `Saved ${learned.length} ${learned.length === 1 ? "answer" : "answers"}. Agents use them from the next call.`,
-    );
+    addSource({
+      id: `ks_say_${Date.now()}`,
+      agentId: first,
+      kind: "text",
+      label: note.title,
+      detail: note.text,
+      chunks: 1,
+      lastReadAt: NOW.toISOString(),
+      status: "ready",
+    });
+    toast.success(`Saved "${note.title}". Agents use it from the next call.`);
   }
 
   const passages = sources.reduce((n, s) => n + s.chunks, 0);
@@ -358,7 +352,7 @@ export function KnowledgeBase({
 
             {way === "talk" ? (
               <div className="mt-5">
-                <KnowledgeInterview onSave={saveInterview} onCancel={() => setAdding(false)} />
+                <KnowledgeVoiceNote onSave={saveVoiceNote} onDone={() => setAdding(false)} />
               </div>
             ) : (
             <form onSubmit={submitAdd} className="mt-5 space-y-4">
