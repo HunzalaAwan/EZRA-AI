@@ -133,8 +133,10 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - **App logos are `AppLogo` tiles: a Phosphor brand mark where one exists, a monogram otherwise.** Never a
   downloaded or redrawn logo. Axe reads a monogram as text, so every brand colour must clear 4.5:1 against
   white; darken it rather than lighten the letters.
-- **Automations are edited on their own screen, never inline.** `/automations/follow-ups` and
-  `/automations/reviews` take `?tab=results|setup|people`; emails are edited at `/automations/emails/[id]`.
+- **Automations are edited on their own screen, never inline.** A tab row in `automations/layout.tsx` spans
+  Overview, General, Follow-ups, Reviews, Email templates, and Team alerts. `/automations/follow-ups` and
+  `/automations/reviews` take `?tab=results|setup|people`; emails are edited at `/automations/emails/[id]`;
+  General messages at `/automations/general/[id]`.
   The user rejected an editor that expanded under the cards as a mess. Never reintroduce a score-first review
   step: everyone gets the same review ask.
 - **The a11y gate refuses non-200 pages.** Port 3000 on this machine is a different project. EZRA's dev

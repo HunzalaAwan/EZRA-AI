@@ -269,6 +269,16 @@ An email is `blocks` rendered by the server into email-safe HTML, plus a plain-t
 blocks. `{variable}` tokens are filled per customer. A `stars` block renders five links that all open the
 same review page. Every email carries the postal address and a one-click unsubscribe header and link.
 
+Block kinds: `heading`, `text`, `callout`, `image`, `button` (with an optional quieter `second`), `booking`,
+`stars`, `contact`, `social`, `divider`, `spacer`, `signoff`. Text accepts `**bold**` and nothing else. An
+`image` block's `src` is a URL from `POST /email-templates/images` (multipart, up to 5 MB, JPG, PNG, GIF, WebP;
+the server resizes to 1200px wide) and its `alt` is required before it is sent. `style.logo` is uploaded the
+same way. `fromName` and `replyTo` set the sender line and where replies land; replies are also threaded into
+Conversations.
+
+General messages (`/messages/templates`) reference an email by `emailTemplateId` when email is one of their
+channels. A missed-call text back is text only, because a dropped call leaves no email address.
+
 ### Website widget and voice
 
 | Method | Path | Returns |

@@ -99,7 +99,9 @@ Confirmed for this build:
   `/messages` redirecting): booking link follow-ups and review requests each have their own screen with
   Results, Setup, and People, plus a shared library of block-built email templates. Review requests send the
   same ask and link to everyone; there is no score-first step and no filtering by satisfaction, also at the
-  user's direction.
+  user's direction. Automations is one row of tabs: Overview, General (booking confirmation, booking link,
+  missed call text back, reminder, each edited on its own screen), Follow-ups, Reviews, Email templates, and
+  Team alerts.
 - The app must run end to end with no backend, against a typed mock data layer.
 
 Explicitly undecided, do not invent:

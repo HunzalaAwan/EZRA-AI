@@ -393,6 +393,8 @@ export interface MessageTemplate extends Fixture {
   enabled: boolean;
   subject: string | null;
   body: string;
+  /** The email it sends when email is on. Written in the template editor. */
+  emailTemplateId?: string | null;
   sent30d: number;
 }
 
@@ -692,15 +694,51 @@ export interface ReviewRun extends Fixture {
 export type EmailPurpose = "follow-up" | "review" | "booking" | "general";
 
 /** Where a button goes. Each resolves per customer when the email is sent. */
-export type EmailLink = "booking_link" | "review_link" | "business_phone" | "website";
+export type EmailLink = "booking_link" | "review_link" | "business_phone" | "website" | "custom";
+
+export type EmailAlign = "left" | "center";
+export type SocialNetwork = "facebook" | "instagram" | "google" | "youtube" | "tiktok" | "x";
+
+export interface EmailButton {
+  label: string;
+  link: EmailLink;
+  /** Only for a custom link. */
+  url?: string;
+}
 
 export type EmailBlock =
-  | { id: string; kind: "heading"; text: string }
-  | { id: string; kind: "text"; text: string }
-  | { id: string; kind: "button"; label: string; link: EmailLink }
+  | { id: string; kind: "heading"; text: string; align?: EmailAlign; size?: "large" | "medium" }
+  | { id: string; kind: "text"; text: string; align?: EmailAlign }
+  | {
+      id: string;
+      kind: "button";
+      label: string;
+      link: EmailLink;
+      url?: string;
+      /** Filled with the accent, an outline, or a plain underlined link. */
+      variant?: "solid" | "outline" | "link";
+      align?: "left" | "center" | "full";
+      /** An optional quieter second choice beside the first, like "Call us". */
+      second?: EmailButton | null;
+    }
+  | {
+      id: string;
+      kind: "image";
+      src: string | null;
+      /** Read aloud, and shown when images are off. */
+      alt: string;
+      size?: "full" | "wide" | "small";
+      link?: EmailLink | null;
+      url?: string;
+      caption?: string;
+    }
+  | { id: string; kind: "callout"; text: string; tone?: "tint" | "grey" }
   | { id: string; kind: "booking" }
   | { id: string; kind: "stars"; prompt: string }
+  | { id: string; kind: "contact"; showHours?: boolean; showMap?: boolean }
+  | { id: string; kind: "social"; links: { network: SocialNetwork; url: string }[] }
   | { id: string; kind: "divider" }
+  | { id: string; kind: "spacer"; size?: "s" | "m" | "l" }
   | { id: string; kind: "signoff"; text: string; name: string };
 
 export type EmailBlockKind = EmailBlock["kind"];
@@ -709,8 +747,12 @@ export interface EmailStyle {
   accent: string;
   corners: "sharp" | "soft" | "round";
   font: "modern" | "friendly" | "classic";
-  /** A band of the accent colour across the top, or the name on white. */
-  header: "band" | "plain";
+  /** A band of the accent colour, the name on white, or a centred logo. */
+  header: "band" | "plain" | "logo";
+  /** An uploaded logo. Without one, a monogram in the accent stands in. */
+  logo?: string | null;
+  /** What sits behind the email card. */
+  backdrop?: "grey" | "white" | "tint";
 }
 
 export interface EmailTemplate extends Fixture {
@@ -722,5 +764,9 @@ export interface EmailTemplate extends Fixture {
   preheader: string;
   blocks: EmailBlock[];
   style: EmailStyle;
+  /** Who it says it is from. Falls back to the business name. */
+  fromName?: string;
+  /** Where replies land. */
+  replyTo?: string;
   updatedAt: string;
 }

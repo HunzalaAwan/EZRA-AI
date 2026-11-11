@@ -1,4 +1,4 @@
-import type { EmailBlock, EmailBlockKind, EmailLink, EmailPurpose, EmailTemplate } from "@/lib/api/types";
+import type { EmailBlock, EmailBlockKind, EmailLink, EmailPurpose, EmailTemplate, SocialNetwork } from "@/lib/api/types";
 
 /**
  * Email templates without React. Server-safe, so pages can resolve names and
@@ -37,33 +37,93 @@ export const LINK: Record<EmailLink, { label: string; sample: string }> = {
   review_link: { label: "Your review link", sample: "g.page/r/aldercreek" },
   business_phone: { label: "Call the business", sample: "tel:+15413882014" },
   website: { label: "Your website", sample: "aldercreekdental.com" },
+  custom: { label: "A web address you type", sample: "" },
 };
 
+/** Where a link actually goes, for the line under a button in the editor. */
+export function linkTarget(link: EmailLink, url?: string) {
+  if (link === "custom") return url?.trim() || "No address yet";
+  return link === "business_phone" ? BUSINESS.phone : LINK[link].sample;
+}
+
 export const BLOCK: Record<EmailBlockKind, { label: string; hint: string }> = {
-  heading: { label: "Heading", hint: "A short, large line at the top." },
+  heading: { label: "Heading", hint: "A short, large line." },
   text: { label: "Paragraph", hint: "A few sentences in your own words." },
-  button: { label: "Button", hint: "One clear thing to tap." },
+  callout: { label: "Highlight", hint: "A shaded box for the one thing they must not miss." },
+  image: { label: "Image", hint: "A photo of your place, your team, or your work." },
+  button: { label: "Button", hint: "One clear thing to tap, with an optional second." },
   booking: { label: "Booking details", hint: "Service, time, and place, filled in for them." },
   stars: { label: "Star rating", hint: "Five stars that open your review page." },
+  contact: { label: "Contact card", hint: "Your phone, address, and opening hours." },
+  social: { label: "Social links", hint: "Small icons that open your pages." },
   divider: { label: "Divider", hint: "A thin line between parts." },
+  spacer: { label: "Space", hint: "Breathing room, with nothing in it." },
   signoff: { label: "Sign-off", hint: "Who it is from." },
 };
+
+/** The block picker, grouped by what a block is for. */
+export const BLOCK_GROUPS: { label: string; kinds: EmailBlockKind[] }[] = [
+  { label: "Words", kinds: ["heading", "text", "callout", "signoff"] },
+  { label: "Pictures and buttons", kinds: ["image", "button", "stars", "social"] },
+  { label: "Filled in for you", kinds: ["booking", "contact"] },
+  { label: "Layout", kinds: ["divider", "spacer"] },
+];
+
+/** The business's own details, as the contact card shows them. */
+export const BUSINESS = {
+  phone: "(541) 388-2014",
+  address: "1450 NE Purcell Blvd, Bend, OR 97701",
+  hours: "Mon to Thu 7:30am to 5pm, Fri 7:30am to 1pm",
+  website: "aldercreekdental.com",
+};
+
+export const SOCIAL: Record<SocialNetwork, { label: string; placeholder: string }> = {
+  facebook: { label: "Facebook", placeholder: "facebook.com/yourpage" },
+  instagram: { label: "Instagram", placeholder: "instagram.com/yourname" },
+  google: { label: "Google", placeholder: "g.page/yourbusiness" },
+  youtube: { label: "YouTube", placeholder: "youtube.com/@yourchannel" },
+  tiktok: { label: "TikTok", placeholder: "tiktok.com/@yourname" },
+  x: { label: "X", placeholder: "x.com/yourname" },
+};
+
+/**
+ * Pictures already in the business's library. Each alt text says what is in
+ * the frame, and is the starting point when it is placed in an email.
+ */
+export const EMAIL_IMAGES: { src: string; label: string; alt: string }[] = [
+  { src: "/photos/dental-operatory.jpg", label: "In the chair", alt: "A patient in the dental chair while two dentists work beside her" },
+  { src: "/photos/clinic-consult.jpg", label: "Consultation", alt: "A doctor in a white coat talking with a patient across his desk" },
+  { src: "/photos/team-office.jpg", label: "Working together", alt: "Four people leaning over papers on a shared office table" },
+];
+
+/** Largest upload, in megabytes. Bigger pictures load slowly on a phone. */
+export const IMAGE_MAX_MB = 5;
 
 export function newBlock(kind: EmailBlockKind): EmailBlock {
   const id = `b_${Date.now().toString(36)}${Math.floor(Math.random() * 1e4).toString(36)}`;
   switch (kind) {
     case "heading":
-      return { id, kind, text: "A short headline" };
+      return { id, kind, text: "A short headline", align: "left", size: "large" };
     case "text":
-      return { id, kind, text: "Hi {first_name}, " };
+      return { id, kind, text: "Hi {first_name}, ", align: "left" };
+    case "callout":
+      return { id, kind, text: "Please bring your insurance card to your visit.", tone: "tint" };
+    case "image":
+      return { id, kind, src: null, alt: "", size: "full", link: null };
     case "button":
-      return { id, kind, label: "Book a time", link: "booking_link" };
+      return { id, kind, label: "Book a time", link: "booking_link", variant: "solid", align: "left", second: null };
     case "booking":
       return { id, kind };
     case "stars":
       return { id, kind, prompt: "How was your visit? Tap to leave a review." };
+    case "contact":
+      return { id, kind, showHours: true, showMap: true };
+    case "social":
+      return { id, kind, links: [{ network: "facebook", url: "" }, { network: "instagram", url: "" }] };
     case "divider":
       return { id, kind };
+    case "spacer":
+      return { id, kind, size: "m" };
     case "signoff":
       return { id, kind, text: "Thanks,", name: "The team at {business}" };
   }
@@ -74,15 +134,26 @@ export function blockSummary(b: EmailBlock) {
   switch (b.kind) {
     case "heading":
     case "text":
-      return fillSample(b.text);
+    case "callout":
+      return fillSample(b.text).replaceAll("**", "");
+    case "image":
+      return b.src ? b.alt || "No description yet" : "No picture chosen yet";
     case "button":
-      return `${b.label}, opens ${LINK[b.link].label.toLowerCase()}`;
+      return `${fillSample(b.label)}, opens ${LINK[b.link].label.toLowerCase()}${b.second ? `, and ${fillSample(b.second.label)}` : ""}`;
     case "booking":
       return "Cleaning, Thursday at 9:40am, our Bend office";
     case "stars":
       return b.prompt;
+    case "contact":
+      return `${BUSINESS.phone}, ${BUSINESS.address}`;
+    case "social": {
+      const names = b.links.map((l) => SOCIAL[l.network].label);
+      return names.length ? names.join(", ") : "No links yet";
+    }
     case "divider":
       return "A thin line";
+    case "spacer":
+      return { s: "A little space", m: "Some space", l: "A lot of space" }[b.size ?? "m"];
     case "signoff":
       return `${b.text} ${fillSample(b.name)}`;
   }
@@ -92,7 +163,22 @@ export function blockSummary(b: EmailBlock) {
 export function templateProblem(t: Pick<EmailTemplate, "subject" | "blocks" | "purpose">): string | null {
   if (!t.subject.trim()) return "Add a subject line. It is the first thing they read.";
   if (t.blocks.length === 0) return "Add at least one block.";
-  const links = t.blocks.flatMap((b) => (b.kind === "button" ? [b.link] : b.kind === "stars" ? ["review_link" as const] : []));
+  for (const b of t.blocks) {
+    if (b.kind === "button" && !b.label.trim()) return "A button has no text. Say what tapping it does.";
+    if (b.kind === "button" && b.link === "custom" && !b.url?.trim()) return "A button opens a web address you type, but there is no address yet.";
+    if (b.kind === "button" && b.second && !b.second.label.trim()) return "The second button has no text.";
+    if (b.kind === "button" && b.second?.link === "custom" && !b.second.url?.trim()) return "The second button has no web address yet.";
+    if (b.kind === "image" && !b.src) return "An image block has no picture yet. Choose one or remove the block.";
+  }
+  const links = t.blocks.flatMap((b): EmailLink[] =>
+    b.kind === "button"
+      ? [b.link, ...(b.second ? [b.second.link] : [])]
+      : b.kind === "stars"
+        ? ["review_link"]
+        : b.kind === "image" && b.link
+          ? [b.link]
+          : [],
+  );
   if (t.purpose === "follow-up" && !links.includes("booking_link"))
     return "A follow-up needs a button to their booking link, or there is nothing to tap.";
   if (t.purpose === "review" && !links.includes("review_link"))
@@ -100,11 +186,57 @@ export function templateProblem(t: Pick<EmailTemplate, "subject" | "blocks" | "p
   return null;
 }
 
+export type EmailCheck = { ok: boolean; label: string; fix: string };
+
+/**
+ * What a careful person checks before sending to a few hundred customers.
+ * Unlike templateProblem, none of these stop a save.
+ */
+export function templateChecks(t: Pick<EmailTemplate, "subject" | "preheader" | "blocks">): EmailCheck[] {
+  const subject = fillSample(t.subject);
+  const images = t.blocks.filter((b) => b.kind === "image");
+  const actions = t.blocks.filter((b) => b.kind === "button" || b.kind === "stars").length;
+  const words = t.blocks
+    .flatMap((b) => (b.kind === "text" || b.kind === "heading" || b.kind === "callout" ? [b.text] : []))
+    .join(" ")
+    .split(/\s+/)
+    .filter(Boolean).length;
+  return [
+    {
+      ok: subject.length > 0 && subject.length <= 60,
+      label: subject.length > 60 ? `Subject is ${subject.length} characters` : "Subject fits on a phone",
+      fix: "Phones cut a subject off at about 60 characters.",
+    },
+    {
+      ok: t.preheader.trim().length > 0,
+      label: t.preheader.trim() ? "Preview text is written" : "No preview text",
+      fix: "Without it, inboxes show the first words of the email instead.",
+    },
+    {
+      ok: actions > 0 && actions <= 2,
+      label: actions === 0 ? "Nothing to tap" : actions > 2 ? `${actions} things to tap` : "A clear thing to tap",
+      fix: actions === 0 ? "Add a button, so it is obvious what to do next." : "Keep to one main button. Every extra one splits the taps.",
+    },
+    {
+      ok: images.every((b) => b.kind === "image" && b.alt.trim().length > 0),
+      label: images.length === 0 ? "No images to describe" : "Every image is described",
+      fix: "Describe each picture. Many inboxes hide images until asked, and screen readers read the description aloud.",
+    },
+    {
+      ok: words <= 180,
+      label: words > 180 ? `${words} words is a long read` : "Short enough to read at a glance",
+      fix: "Most people stop reading an email like this after about 150 words.",
+    },
+  ];
+}
+
 export const BLANK_STYLE: EmailTemplate["style"] = {
   accent: "#0f766e",
   corners: "soft",
   font: "modern",
   header: "band",
+  logo: null,
+  backdrop: "grey",
 };
 
 /** The postal footer every email carries, with the way out. */
@@ -147,8 +279,9 @@ export function draftFor(purpose: EmailPurpose, now: string): EmailTemplate {
         blocks: [
           { id: id(1), kind: "heading", text: "See you soon, {first_name}" },
           { id: id(2), kind: "booking" },
-          { id: id(3), kind: "button", label: "Change or cancel", link: "booking_link" },
+          { id: id(3), kind: "button", label: "Change or cancel", link: "booking_link", second: { label: "Call the office", link: "business_phone" } },
           { id: id(4), kind: "signoff", text: "Thanks,", name: "{business}" },
+          { id: id(5), kind: "contact", showHours: true, showMap: true },
         ],
       };
     case "general":

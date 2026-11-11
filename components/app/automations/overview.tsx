@@ -8,7 +8,6 @@ import {
   ArrowsClockwiseIcon,
   CalendarCheckIcon,
   CheckCircleIcon,
-  EnvelopeSimpleIcon,
   LinkIcon,
   StarIcon,
   type Icon,
@@ -32,14 +31,12 @@ export function AutomationCards({
   reviews,
   reviewResults: rr,
   waiting,
-  templateCount,
 }: {
   followUps: FollowUpSettings;
   followUpResults: FollowUpResults;
   reviews: ReviewSettings;
   reviewResults: ReviewResults;
   waiting: number;
-  templateCount: number;
 }) {
   const [fuOn, setFuOn] = React.useState(followUps.enabled);
   const [rvOn, setRvOn] = React.useState(reviews.enabled);
@@ -48,7 +45,7 @@ export function AutomationCards({
   const rvDelta = fmt.delta(rr.reviewed, rr.reviewedPrev);
 
   return (
-    <section aria-label="Automations" className="space-y-4">
+    <section aria-label="Follow-ups and reviews" className="space-y-4">
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <AutomationCard
           href="/automations/follow-ups"
@@ -118,24 +115,6 @@ export function AutomationCards({
         />
       </div>
 
-      <Link
-        href={"/automations/emails" as Route}
-        className="group flex flex-wrap items-center gap-4 rounded-2xl border border-rule bg-surface px-5 py-4 transition-colors hover:border-rule-control"
-      >
-        <span aria-hidden className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-panel text-ink">
-          <EnvelopeSimpleIcon className="size-5" />
-        </span>
-        <span className="min-w-0 flex-1">
-          <span className="block font-medium text-ink">Email templates</span>
-          <span className="block text-sm text-ink-muted">
-            <span data-numeric className="font-mono">{templateCount}</span> emails in your colours, used by follow-ups, reviews, and bookings.
-          </span>
-        </span>
-        <span className="inline-flex items-center gap-1.5 text-sm font-medium text-ink">
-          Open templates
-          <ArrowRightIcon aria-hidden className="size-4 transition-transform group-hover:translate-x-0.5" />
-        </span>
-      </Link>
     </section>
   );
 }
@@ -250,5 +229,88 @@ function AutomationCard({
         </div>
       </div>
     </article>
+  );
+}
+
+/**
+ * Everything else EZRA sends, one line each, so the overview answers "what
+ * is on" without opening every tab.
+ */
+export function OtherAutomations({
+  messages,
+  alerts,
+  templateCount,
+}: {
+  messages: { id: string; name: string; when: string; enabled: boolean; sent30d: number }[];
+  alerts: { on: number; total: number };
+  templateCount: number;
+}) {
+  return (
+    <section aria-labelledby="everything-else" className="space-y-3">
+      <h3 id="everything-else" className="font-display text-lg font-semibold text-ink">
+        Everything else it sends
+      </h3>
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+        <div className="overflow-hidden rounded-2xl border border-rule bg-surface">
+          <div className="flex items-center justify-between gap-3 border-b border-rule px-5 py-3.5">
+            <p className="text-sm font-medium text-ink">General messages</p>
+            <Link href={"/automations/general" as Route} className="inline-flex items-center gap-1 text-sm text-ink-muted hover:text-ink">
+              Open General
+              <ArrowRightIcon aria-hidden className="size-3.5" />
+            </Link>
+          </div>
+          <ul className="divide-y divide-rule">
+            {messages.map((m) => (
+              <li key={m.id}>
+                <Link
+                  href={`/automations/general/${m.id}` as Route}
+                  className="group flex flex-wrap items-center gap-x-4 gap-y-1 px-5 py-3 transition-colors hover:bg-panel"
+                >
+                  <span className={cn("size-2 shrink-0 rounded-full", m.enabled ? "bg-success" : "bg-rule-control")} aria-hidden />
+                  <span className="min-w-0 grow basis-48">
+                    <span className="block text-sm font-medium text-ink">
+                      {m.name}
+                      <span className="sr-only">, {m.enabled ? "on" : "off"}</span>
+                    </span>
+                    <span className="block truncate text-xs text-ink-muted">{m.when}</span>
+                  </span>
+                  <span className="text-xs text-ink-muted">
+                    <span data-numeric className="font-mono text-ink">
+                      {fmt.count(m.sent30d)}
+                    </span>{" "}
+                    in 30 days
+                  </span>
+                  <ArrowRightIcon aria-hidden className="size-4 text-ink-faint transition-transform group-hover:translate-x-0.5" />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="grid content-start gap-5">
+          <SummaryLink
+            href="/automations/emails"
+            title="Email templates"
+            body={<><span data-numeric className="font-mono text-ink">{templateCount}</span> emails in your colours, used by every automation.</>}
+          />
+          <SummaryLink
+            href="/automations/team"
+            title="Team alerts"
+            body={<><span data-numeric className="font-mono text-ink">{alerts.on}</span> of {alerts.total} on, for the moments that need a person.</>}
+          />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function SummaryLink({ href, title, body }: { href: string; title: string; body: React.ReactNode }) {
+  return (
+    <Link href={href as Route} className="group block rounded-2xl border border-rule bg-surface px-5 py-4 transition-colors hover:border-rule-control">
+      <span className="flex items-center justify-between gap-3">
+        <span className="font-medium text-ink">{title}</span>
+        <ArrowRightIcon aria-hidden className="size-4 text-ink-muted transition-transform group-hover:translate-x-0.5" />
+      </span>
+      <span className="mt-1 block text-sm text-ink-muted">{body}</span>
+    </Link>
   );
 }

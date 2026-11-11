@@ -47,6 +47,7 @@ export function DetailHeader({
   enabled,
   onToggle,
   switchLabel,
+  back,
   children,
 }: {
   title: string;
@@ -54,17 +55,21 @@ export function DetailHeader({
   enabled: boolean;
   onToggle: (v: boolean) => void;
   switchLabel: string;
+  /** A way back to the list, for screens one level below a tab. */
+  back?: { href: string; label: string };
   children?: React.ReactNode;
 }) {
   return (
     <div className="space-y-4">
-      <Link
-        href={"/automations" as Route}
-        className="inline-flex items-center gap-1.5 rounded-md text-sm text-ink-muted transition-colors hover:text-ink"
-      >
-        <ArrowLeftIcon aria-hidden className="size-4" />
-        Automations
-      </Link>
+      {back ? (
+        <Link
+          href={back.href as Route}
+          className="inline-flex items-center gap-1.5 rounded-md text-sm text-ink-muted transition-colors hover:text-ink"
+        >
+          <ArrowLeftIcon aria-hidden className="size-4" />
+          {back.label}
+        </Link>
+      ) : null}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
           <h2 className="font-display text-3xl font-semibold tracking-[-0.035em] text-ink">{title}</h2>

@@ -1495,6 +1495,7 @@ export const messageTemplates: MessageTemplate[] = [
     enabled: true,
     subject: "You are booked with {business}",
     body: "Hi {first_name}, you are booked for {booking_time} at {location}. Reply C to confirm or R to reschedule.",
+    emailTemplateId: "et_confirm",
     sent30d: 612,
   },
   {
@@ -1507,6 +1508,7 @@ export const messageTemplates: MessageTemplate[] = [
     enabled: true,
     subject: null,
     body: "Here is the link to book with {business}: {booking_link} It holds your spot for 30 minutes.",
+    emailTemplateId: null,
     sent30d: 488,
   },
   {
@@ -1519,6 +1521,7 @@ export const messageTemplates: MessageTemplate[] = [
     enabled: true,
     subject: null,
     body: "Sorry we missed you at {business}. Reply here and we will sort it out, or call back any time on {business_phone}.",
+    emailTemplateId: null,
     sent30d: 37,
   },
   {
@@ -1531,6 +1534,7 @@ export const messageTemplates: MessageTemplate[] = [
     enabled: true,
     subject: null,
     body: "Reminder: {booking_time} tomorrow at {location}. Reply R to reschedule.",
+    emailTemplateId: "et_reminder",
     sent30d: 571,
   },
 ];
@@ -1557,6 +1561,37 @@ export const teamAlerts: TeamAlert[] = [
     channels: ["email"],
     enabled: true,
     recipients: ["mb_priya", "mb_omar", "mb_sunita"],
+  },
+  {
+    ...F,
+    id: "ta_missed",
+    key: "handoff-missed",
+    name: "A transfer went unanswered",
+    description:
+      "When the agent tried to put a caller through and nobody picked up, so someone can call them back.",
+    channels: ["sms"],
+    enabled: true,
+    recipients: ["mb_priya", "mb_renata"],
+  },
+  {
+    ...F,
+    id: "ta_booking",
+    key: "new-booking",
+    name: "Every new booking",
+    description: "One line per booking the agent makes, with who, what, and when.",
+    channels: ["email"],
+    enabled: false,
+    recipients: ["mb_renata"],
+  },
+  {
+    ...F,
+    id: "ta_weekly",
+    key: "weekly-report",
+    name: "Weekly report",
+    description: "Monday at 8am: calls answered, bookings made, and what the follow-ups and review requests brought in.",
+    channels: ["email"],
+    enabled: true,
+    recipients: ["mb_priya"],
   },
 ];
 
@@ -2016,11 +2051,13 @@ export const reviewRuns: ReviewRun[] = [
 // Email templates
 // ---------------------------------------------------------------------------
 
-const ALDER_STYLE = { accent: "#0f766e", corners: "soft", font: "modern", header: "band" } as const;
+const ALDER_STYLE = { accent: "#0f766e", corners: "soft", font: "modern", header: "band", logo: null, backdrop: "grey" } as const;
+const ALDER_FROM = { fromName: "Alder Creek Dental", replyTo: "frontdesk@aldercreekdental.com" };
 
 export const emailTemplates: EmailTemplate[] = [
   {
     ...F,
+    ...ALDER_FROM,
     id: "et_fu_gentle",
     name: "Still thinking it over",
     purpose: "follow-up",
@@ -2038,6 +2075,7 @@ export const emailTemplates: EmailTemplate[] = [
   },
   {
     ...F,
+    ...ALDER_FROM,
     id: "et_fu_week",
     name: "Times filling up",
     purpose: "follow-up",
@@ -2045,6 +2083,14 @@ export const emailTemplates: EmailTemplate[] = [
     preheader: "Book in under a minute, or reply and we'll find one for you.",
     blocks: [
       { id: "b1", kind: "heading", text: "This week is nearly full" },
+      {
+        id: "b7",
+        kind: "image",
+        src: "/photos/dental-operatory.jpg",
+        alt: "A patient in the dental chair while two dentists work beside her",
+        size: "full",
+        link: "booking_link",
+      },
       { id: "b2", kind: "text", text: "Hi {first_name}, we still have a handful of {service} times over the next few days. Pick one that suits you and you're done." },
       { id: "b3", kind: "button", label: "Book my visit", link: "booking_link" },
       { id: "b4", kind: "divider" },
@@ -2056,6 +2102,7 @@ export const emailTemplates: EmailTemplate[] = [
   },
   {
     ...F,
+    ...ALDER_FROM,
     id: "et_review",
     name: "Thanks for coming in",
     purpose: "review",
@@ -2067,12 +2114,21 @@ export const emailTemplates: EmailTemplate[] = [
       { id: "b3", kind: "stars", prompt: "How was your visit? Tap to leave a review." },
       { id: "b4", kind: "text", text: "Reviews help other people in Bend find a practice they can trust, and every one is read by the whole team." },
       { id: "b5", kind: "signoff", text: "With thanks,", name: "Dr. Omar Castellanos and the team" },
+      {
+        id: "b6",
+        kind: "social",
+        links: [
+          { network: "facebook", url: "facebook.com/aldercreekdental" },
+          { network: "instagram", url: "instagram.com/aldercreek.dental" },
+        ],
+      },
     ],
     style: ALDER_STYLE,
     updatedAt: hoursAgo(74),
   },
   {
     ...F,
+    ...ALDER_FROM,
     id: "et_review_short",
     name: "Quick review ask",
     purpose: "review",
@@ -2083,11 +2139,12 @@ export const emailTemplates: EmailTemplate[] = [
       { id: "b2", kind: "button", label: "Leave a review", link: "review_link" },
       { id: "b3", kind: "signoff", text: "Thank you,", name: "{business}" },
     ],
-    style: { ...ALDER_STYLE, header: "plain" },
+    style: { ...ALDER_STYLE, header: "logo", backdrop: "tint" },
     updatedAt: hoursAgo(530),
   },
   {
     ...F,
+    ...ALDER_FROM,
     id: "et_confirm",
     name: "Booking confirmed",
     purpose: "booking",
@@ -2096,15 +2153,26 @@ export const emailTemplates: EmailTemplate[] = [
     blocks: [
       { id: "b1", kind: "heading", text: "You're all set, {first_name}" },
       { id: "b2", kind: "booking" },
-      { id: "b3", kind: "text", text: "Please arrive ten minutes early if this is your first visit. Need to change it? Use the link below or call {business_phone}." },
-      { id: "b4", kind: "button", label: "Change or cancel", link: "booking_link" },
+      { id: "b6", kind: "callout", text: "First visit? Arrive ten minutes early and bring your insurance card and a photo ID.", tone: "tint" },
+      { id: "b3", kind: "text", text: "Need to change it? Use the button below, or call {business_phone} and we will move it for you." },
+      {
+        id: "b4",
+        kind: "button",
+        label: "Change or cancel",
+        link: "booking_link",
+        variant: "solid",
+        align: "left",
+        second: { label: "Call the office", link: "business_phone" },
+      },
       { id: "b5", kind: "signoff", text: "See you soon,", name: "The team at {business}" },
+      { id: "b7", kind: "contact", showHours: true, showMap: true },
     ],
     style: ALDER_STYLE,
     updatedAt: hoursAgo(1180),
   },
   {
     ...F,
+    ...ALDER_FROM,
     id: "et_reminder",
     name: "See you tomorrow",
     purpose: "booking",

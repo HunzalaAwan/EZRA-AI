@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
-import { ArrowLeftIcon, CopyIcon, FileIcon, PlusIcon } from "@phosphor-icons/react";
+import { CopyIcon, FileIcon, PlusIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/overlay";
 import { Badge } from "@/components/ui/status";
@@ -38,17 +38,13 @@ export function EmailLibrary({
 
   return (
     <div className="space-y-6">
-      <div className="space-y-4">
-        <Link href={"/automations" as Route} className="inline-flex items-center gap-1.5 rounded-md text-sm text-ink-muted transition-colors hover:text-ink">
-          <ArrowLeftIcon aria-hidden className="size-4" />
-          Automations
-        </Link>
+      <div>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <h2 className="font-display text-3xl font-semibold tracking-[-0.035em] text-ink">Email templates</h2>
             <p className="mt-1.5 max-w-[62ch] text-base leading-relaxed text-ink-muted">
-              The emails your follow-ups, review requests, and bookings send, in your own colours. Change one here and it
-              changes everywhere it is used.
+              The emails your follow-ups, review requests, and General messages send, in your own colours. Change one here
+              and it changes everywhere it is used.
             </p>
           </div>
           <Button variant="primary" onClick={() => setCreating(true)}>

@@ -1,25 +1,22 @@
 import type { Metadata } from "next";
-import { AutomationCards } from "@/components/app/automations/overview";
-import { MessageSettings } from "@/components/app/messages";
+import { AutomationCards, OtherAutomations } from "@/components/app/automations/overview";
 import {
   emailTemplates,
   followUpResults,
   followUpRuns,
   followUpSettings,
-  members,
   messageTemplates,
   reviewResults,
   reviewSettings,
-  sentMessages,
   teamAlerts,
 } from "@/lib/mock/fixtures";
 
 export const metadata: Metadata = { title: "Automations" };
 
 /**
- * Everything EZRA sends on its own. The two automations that bring people
- * back lead, with what they achieved; the simpler messages and team alerts
- * follow.
+ * Everything EZRA sends on its own, at a glance. The two automations that
+ * bring people back lead, with what they achieved; every other message is
+ * one line with a way into its own tab.
  */
 export default function AutomationsPage() {
   return (
@@ -37,9 +34,12 @@ export default function AutomationsPage() {
         reviews={reviewSettings}
         reviewResults={reviewResults}
         waiting={followUpRuns.filter((r) => r.state === "waiting").length}
+      />
+      <OtherAutomations
+        messages={messageTemplates.map(({ id, name, when, enabled, sent30d }) => ({ id, name, when, enabled, sent30d }))}
+        alerts={{ on: teamAlerts.filter((a) => a.enabled).length, total: teamAlerts.length }}
         templateCount={emailTemplates.length}
       />
-      <MessageSettings templates={messageTemplates} alerts={teamAlerts} sent={sentMessages} members={members} />
     </div>
   );
 }
